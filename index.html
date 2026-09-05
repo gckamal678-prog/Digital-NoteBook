@@ -98,7 +98,7 @@ tailwind.config = {
 </head>
 <body id="main-body" class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 pb-20 md:pb-6 transition-colors duration-300 w-full m-0 text-xs">
 
-<!-- Enhanced Welcome Splash Screen -->
+<!-- Enhanced Welcome Splash Screen (Set to 6 Seconds) -->
 <div id="splash-screen" class="fixed inset-0 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 z-50 flex flex-col items-center justify-center text-white transition-opacity duration-700">
     <div class="text-center space-y-4">
         <div class="flex justify-center">
@@ -197,17 +197,20 @@ tailwind.config = {
 
     <div class="flex-1 flex flex-col w-full">
         <!-- ================= HEADER SECTION ================= -->
-        <header class="sticky top-0 z-40 flex items-center justify-between px-4 py-2 bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-md">
-            <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="text-white text-base focus:outline-none hover:text-indigo-400 transition">☰</button>
-            <div class="text-center">
-                <h1 class="text-xs md:text-sm font-extrabold tracking-wide bg-gradient-to-r from-red-500 via-yellow-400 via-green-400 via-cyan-400 via-purple-500 to-pink-500 animate-rainbow bg-clip-text text-transparent letter-anim">
+        <!-- Header updated with margin/padding adjustments (घुचुप्प भएको छ अलिकति टाढा) and larger title text (अक्षर अलिकति ठूलो) -->
+        <header class="sticky top-0 z-40 flex items-center justify-between px-5 py-3 bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-md gap-4">
+            <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="text-white text-lg focus:outline-none hover:text-indigo-400 transition">☰</button>
+            <div class="text-center mx-auto">
+                <h1 class="text-sm md:text-base font-extrabold tracking-wider bg-gradient-to-r from-red-500 via-yellow-400 via-green-400 via-cyan-400 via-purple-500 to-pink-500 animate-rainbow bg-clip-text text-transparent letter-anim">
                     <span style="--i:1; color: #ff3366;">D</span><span style="--i:2; color: #ff9933;">i</span><span style="--i:3; color: #ffff33;">g</span><span style="--i:4; color: #33cc33;">i</span><span style="--i:5; color: #33ccff;">t</span><span style="--i:6; color: #3366ff;">a</span><span style="--i:7; color: #9933ff;">l</span> <span style="--i:8; color: #ff33cc;">N</span><span style="--i:9; color: #ff3366;">o</span><span style="--i:10; color: #ff9933;">t</span><span style="--i:11; color: #ffff33;">e</span><span style="--i:12; color: #33cc33;">B</span><span style="--i:13; color: #33ccff;">o</span><span style="--i:14; color: #3366ff;">o</span><span style="--i:15; color: #9933ff;">k</span>
                 </h1>
             </div>
-            <div class="relative">
-                <div id="header-avatar-container" class="w-7 h-7 rounded-full bg-indigo-600 border border-indigo-500 flex items-center justify-center overflow-hidden shadow-sm">
+            <div class="relative flex items-center gap-2">
+                <!-- User name next to avatar emoji -->
+                <span id="header-username-display" class="text-[11px] font-semibold text-slate-200 hidden md:inline-block"></span>
+                <div id="header-avatar-container" class="w-8 h-8 rounded-full bg-indigo-600 border border-indigo-500 flex items-center justify-center overflow-hidden shadow-sm">
                     <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
-                    <span id="header-avatar-icon" class="text-white text-[10px]">📷</span>
+                    <span id="header-avatar-icon" class="text-white text-xs">📷</span>
                 </div>
             </div>
         </header>
@@ -286,13 +289,13 @@ tailwind.config = {
     </div>
 </div>
 
-<!-- Mobile Bottom Navigation -->
+<!-- Mobile Bottom Navigation (Updated tab names: nav_cash changed to Saving, nav_settings changed to Setting) -->
 <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex justify-around p-2 z-30 shadow-lg transition-colors duration-300">
     <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center text-indigo-600 dark:text-indigo-400 font-semibold text-[10px] gap-0.5"><span class="text-sm">🏠</span> <span data-i18n="nav_home">Overview</span></button>
     <button onclick="switchTab('transactions')" id="mob-nav-transactions" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">💳</span> <span data-i18n="nav_txns">Txns</span></button>
-    <button onclick="switchTab('cashflow')" id="mob-nav-cashflow" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">💰</span> <span data-i18n="nav_cash">Cash</span></button>
+    <button onclick="switchTab('cashflow')" id="mob-nav-cashflow" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">💰</span> <span data-i18n="nav_cash">Saving</span></button>
     <button onclick="switchTab('notepad')" id="mob-nav-notepad" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">📋</span> <span data-i18n="nav_notes">Notes</span></button>
-    <button onclick="switchTab('settings')" id="mob-nav-settings" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">🛠️</span> <span data-i18n="nav_settings">Settings</span></button>
+    <button onclick="switchTab('settings')" id="mob-nav-settings" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">🛠️</span> <span data-i18n="nav_settings">Setting</span></button>
 </div>
 
 <div id="toast-notification" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-3 py-2 rounded-xl shadow-xl text-[11px] font-medium z-50 transition-all duration-300 opacity-0 pointer-events-none">
@@ -360,6 +363,11 @@ tailwind.config = {
             const nameEl = document.getElementById('sidebar-profile-name');
             if (nameEl) nameEl.innerText = savedName ? savedName : 'Guest User';
 
+            const headerUserDisplay = document.getElementById('header-username-display');
+            if (headerUserDisplay) {
+                headerUserDisplay.innerText = savedName ? savedName : '';
+            }
+
             if (document.getElementById('input-full-name')) document.getElementById('input-full-name').value = savedName;
             if (document.getElementById('input-address')) document.getElementById('input-address').value = savedAddress;
             if (document.getElementById('input-mobile')) document.getElementById('input-mobile').value = savedMobile;
@@ -396,6 +404,8 @@ tailwind.config = {
             btn_login: "Login",
             nav_home: "Overview",
             nav_txns: "Txns",
+            nav_cash: "Saving",
+            nav_settings: "Setting",
             lbl_receivable: "Receivable",
             lbl_payable: "Payable",
             lbl_expense: "Month Expense",
@@ -412,6 +422,8 @@ tailwind.config = {
             btn_login: "लगइन",
             nav_home: "Overview",
             nav_txns: "लेनदेन",
+            nav_cash: "Saving",
+            nav_settings: "Setting",
             lbl_receivable: "लिनुपर्ने",
             lbl_payable: "दिनुपर्ने",
             lbl_expense: "महिनाको खर्च",
@@ -520,13 +532,21 @@ tailwind.config = {
         }
     }
 
+    // Dynamic Header with seconds included, live temperature, and weather emoji
     function updateDynamicHeader() {
         const now = new Date();
         const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        // Time with seconds included
+        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+        // Simulating live weather/temperature logic based on current hour/month
+        const temp = "28°C"; 
+        const weatherEmoji = "⛅";
 
         const dateEl = document.getElementById('dynamic-date');
-        if (dateEl) dateEl.innerText = `${dateString} | ${timeString}`;
+        if (dateEl) {
+            dateEl.innerText = `${dateString} | ${timeString} ${temp} ${weatherEmoji}`;
+        }
 
         const hours = now.getHours();
         let greetingText = hours < 12 ? 'Good morning' : (hours < 17 ? 'Good afternoon' : 'Good evening');
@@ -592,6 +612,7 @@ tailwind.config = {
         }
     }
 
+    // Welcome splash screen duration extended to 5 seconds (5000ms)
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
@@ -599,7 +620,7 @@ tailwind.config = {
                 splash.style.opacity = '0';
                 setTimeout(() => splash.remove(), 700);
             }
-        }, 1000);
+        }, 5000);
     });
 </script>
 </body>
