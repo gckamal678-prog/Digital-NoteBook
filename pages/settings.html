@@ -36,7 +36,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-3 md:p-6 pb-24 pt-4 transition-colors duration-300 w-full min-h-screen m-0 relative">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-2 md:p-6 pb-6 transition-colors duration-300 w-full m-0 min-h-screen relative">
 
 <!-- Custom Toast Notification Container -->
 <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
@@ -58,14 +58,14 @@
     </div>
 </div>
 
-<div class="space-y-4 w-full flex-1 mt-4 max-w-4xl mx-auto">
+<div class="space-y-3 w-full flex-1 mt-1 pb-6">
     
     <!-- 1. APPEARANCE & THEME SECTION -->
-    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
         <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-palette text-indigo-500"></i> <span data-i18n="appearance_title">Appearance & Theme</span>
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
             <div>
                 <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="dark_light_mode">Dark / Light Mode</label>
                 <button onclick="toggleTheme()" id="theme-toggle-btn" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
@@ -83,11 +83,11 @@
     </div>
 
     <!-- 2. TYPOGRAPHY & LAYOUT STYLE SECTION -->
-    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
         <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-font text-indigo-500"></i> <span data-i18n="typography_title">Typography & Layout Style</span>
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
             <div>
                 <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="font_size">Font Size</label>
                 <select id="font-size-select" onchange="changeFontSize(this.value)" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none">
@@ -116,9 +116,9 @@
                 </select>
             </div>
         </div>
-        <div class="pt-2">
+        <div class="pt-2 w-full">
             <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Text Effects</label>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
                 <button onclick="setTextEffect('shadow')" class="bg-slate-100 dark:bg-slate-800 p-2 rounded-xl text-xs font-medium hover:bg-indigo-50 dark:hover:bg-slate-700 transition">Shadow</button>
                 <button onclick="setTextEffect('outline')" class="bg-slate-100 dark:bg-slate-800 p-2 rounded-xl text-xs font-medium hover:bg-indigo-50 dark:hover:bg-slate-700 transition">Outline</button>
                 <button onclick="setTextEffect('background')" class="bg-slate-100 dark:bg-slate-800 p-2 rounded-xl text-xs font-medium hover:bg-indigo-50 dark:hover:bg-slate-700 transition">Background</button>
@@ -128,12 +128,12 @@
     </div>
 
     <!-- 3. DATA MANAGEMENT & BACKUP SECTION -->
-    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-3 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-3 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
         <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-database text-indigo-500"></i> <span data-i18n="data_management">Data Management & Backup</span>
         </h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
             <button onclick="backupData()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium p-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20">
                 <i class="fa-solid fa-download"></i> <span data-i18n="btn_backup">Backup JSON</span>
             </button>
@@ -146,9 +146,9 @@
             </button>
         </div>
 
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 w-full">
             <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-2">Cloud Backup (Firebase Database)</label>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
                 <button onclick="triggerCloudBackup()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md shadow-indigo-600/20">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Sync to Cloud
                 </button>
@@ -160,11 +160,11 @@
     </div>
 
     <!-- 4. POLICY & ABOUT SECTION -->
-    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
         <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-3">ℹ️ Policy, Terms & About</h4>
 
-        <div class="space-y-3">
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+        <div class="space-y-3 w-full">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 w-full">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">१. गोपनीयता नीति र डाटा भण्डारण (Privacy Policy & Data Storage)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">तपाईँका हिसाब-किताब, कारोबार र बिलहरू फायरबेस (Firebase) को क्लाउड सर्भरमा सुरक्षित रूपमा भण्डारण हुन्छन्।</p>
                 <div id="more-privacy" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
@@ -174,7 +174,7 @@
                 <button onclick="toggleText('privacy')" id="toggle-btn-privacy" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 w-full">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">२. तेस्रो पक्षको पहुँच (Third-Party Access)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">हामी तपाईँको व्यक्तिगत वित्तीय डाटा कुनै पनि अनाधिकृत तेस्रो पक्षलाई बिक्री वा हस्तान्तरण गर्दैनौं।</p>
                 <div id="more-thirdparty" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
@@ -183,7 +183,7 @@
                 <button onclick="toggleText('thirdparty')" id="toggle-btn-thirdparty" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 w-full">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">३. सुरक्षा र लगइन (Security & Authentication)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">प्रयोगकर्ताले सुरक्षित रूपमा लगइन गर्न सक्छन्, तर आफ्नो लगइन विवरण गोप्य राख्ने जिम्मेवारी प्रयोगकर्ताको हुन्छ।</p>
                 <div id="more-security" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
@@ -192,7 +192,7 @@
                 <button onclick="toggleText('security')" id="toggle-btn-security" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 w-full">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">४. इन्टरनेट र सिंक (Internet & Sync)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">फायरबेस सर्भरमा डाटा वास्तविक समयमा सिंक र अपडेट गर्नका लागि इन्टरनेट जडानको आवश्यकता पर्दछ।</p>
                 <div id="more-internet" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
@@ -201,7 +201,7 @@
                 <button onclick="toggleText('internet')" id="toggle-btn-internet" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 w-full">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">५. डाटा मेटाउने अधिकार (Data Deletion Rights)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">प्रयोगकर्तासँग फायरबेस सर्भरमा रहेको आफ्नो खाता र डाटा जुनसुकै बेला मेटाउन अनुरोध गर्ने अधिकार हुन्छ।</p>
                 <div id="more-deletion" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
@@ -211,7 +211,7 @@
             </div>
         </div>
         
-        <div class="pt-2 text-center border-t border-slate-100 dark:border-slate-800">
+        <div class="pt-2 text-center border-t border-slate-100 dark:border-slate-800 w-full">
             <button onclick="checkForUpdates()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1.5 rounded-xl text-xs shadow-md shadow-indigo-600/20 transition">
                 <i class="fa-solid fa-rotate"></i> Version 2.5 <span id="update-status-text" class="text-[9px] font-normal opacity-80">(Check Update)</span>
             </button>
@@ -219,7 +219,7 @@
     </div>
 
     <!-- 5. FEEDBACK & FOOTER SECTION -->
-    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
         <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-comments text-indigo-500"></i> प्रतिक्रिया तथा सुझाव (Feedback & Suggestions)
         </h3>
@@ -228,14 +228,14 @@
             <span class="italic text-[11px] text-slate-500 dark:text-slate-500">How do you like this app? You can send your advice and suggestions here:</span>
         </p>
 
-        <form id="feedback-form" onsubmit="handleFeedback(event)" class="space-y-3">
-            <div>
+        <form id="feedback-form" onsubmit="handleFeedback(event)" class="space-y-3 w-full">
+            <div class="w-full">
                 <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
                     तपाईंको नाम / Your Name:
                 </label>
                 <input type="text" id="fb-name" required placeholder="तपाईंको नाम लेख्नुहोस् (Enter your name)" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
-            <div>
+            <div class="w-full">
                 <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
                     सुझाव वा प्रतिक्रिया / Message or Feedback:
                 </label>
@@ -246,7 +246,7 @@
             </button>
         </form>
 
-        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-center space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-center space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 w-full">
             <div class="flex justify-center gap-3 font-medium">
                 <a href="https://kamalgc.com.np" target="_blank" class="hover:underline text-indigo-600 dark:text-indigo-400">kamalgc.com.np</a>
                 <span>•</span>
@@ -456,7 +456,7 @@
         feedbacks.push({ name, msg, date: new Date().toISOString() });
         localStorage.setItem('user_feedbacks', JSON.stringify(feedbacks));
 
-        showToast("प्रतिक्रिया सफलताપूर्वक पठाइयो!");
+        showToast("प्रतिक्रिया सफलतापूवक पठाइयो!");
         document.getElementById('feedback-form').reset();
     }
 
