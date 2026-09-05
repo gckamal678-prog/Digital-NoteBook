@@ -38,23 +38,23 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-2 md:p-6 pb-28 transition-colors duration-300 w-full m-0 min-h-screen flex flex-col justify-between">
 
 <div class="space-y-4 w-full flex-1 max-w-5xl mx-auto">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 gap-4">
-        <h1 class="text-base md:text-xl font-bold tracking-wider text-slate-900 dark:text-white flex items-center gap-2.5">
-            <span class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-emerald-500">📊</span> 
+    <!-- Header Section (Padding কম गरिएको) -->
+    <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-900 p-2.5 md:p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 gap-3">
+        <h1 class="text-base md:text-xl font-bold tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-emerald-500">📊</span> 
             <span>Cashflow & Ledger</span>
         </h1>
         
         <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-            <!-- Date Range Filter & Export CSV in one line -->
+            <!-- Date Range Filter & PDF Report -->
             <div class="flex flex-row items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs">
                 <i class="fa-solid fa-calendar text-slate-400"></i>
                 <input type="date" id="filter-from-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
                 <span class="text-slate-400">-</span>
                 <input type="date" id="filter-to-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
                 <button onclick="clearDateFilter()" class="text-slate-400 hover:text-rose-500 ml-1"><i class="fa-solid fa-xmark"></i></button>
-                <button type="button" onclick="exportToCSV()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ml-2">
-                    <i class="fa-solid fa-file-csv text-indigo-500"></i> CSV
+                <button type="button" onclick="exportFullPDF()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ml-2">
+                    <i class="fa-solid fa-file-pdf text-rose-500"></i> PDF
                 </button>
             </div>
         </div>
@@ -82,7 +82,7 @@
 
     <!-- ACCORDION CARD 1: ADD TRANSACTION -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
-        <button onclick="toggleAccordion('section-transaction')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+        <button onclick="toggleAccordion('section-transaction')" class="w-full flex justify-between items-center p-3.5 md:p-4 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
             <span class="flex items-center gap-2"><i class="fa-solid fa-right-left text-blue-500"></i> Add New Transaction</span>
             <i id="icon-section-transaction" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
@@ -151,7 +151,7 @@
 
     <!-- ACCORDION CARD 2: PARTY ACCOUNTS & LEDGER -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
-        <button onclick="toggleAccordion('section-party')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+        <button onclick="toggleAccordion('section-party')" class="w-full flex justify-between items-center p-3.5 md:p-4 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
             <span class="flex items-center gap-2"><i class="fa-solid fa-users text-purple-500"></i> Party Accounts & Ledger</span>
             <i id="icon-section-party" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
@@ -165,7 +165,7 @@
 
     <!-- ACCORDION CARD 3: ADD INCOME -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
-        <button onclick="toggleAccordion('section-income')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+        <button onclick="toggleAccordion('section-income')" class="w-full flex justify-between items-center p-3.5 md:p-4 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
             <span class="flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> Add Income Source</span>
             <i id="icon-section-income" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
@@ -197,7 +197,7 @@
 
     <!-- ACCORDION CARD 4: ADD CASHFLOW / SAVINGS -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
-        <button onclick="toggleAccordion('section-savings')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+        <button onclick="toggleAccordion('section-savings')" class="w-full flex justify-between items-center p-3.5 md:p-4 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
             <span class="flex items-center gap-2"><i class="fa-solid fa-piggy-bank text-amber-500"></i> Add Cashflow / Savings</span>
             <i id="icon-section-savings" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
@@ -710,6 +710,39 @@
         printWindow.print();
     }
 
+    function exportFullPDF() {
+        const printWindow = window.open('', '_blank');
+        const filteredTxns = getDateFilteredData(transactions);
+        const filteredIncomes = getDateFilteredData(incomes);
+        const filteredSavings = getDateFilteredData(savings);
+
+        let html = `<html><head><title>Complete Financial Report</title><style>body{font-family:sans-serif;padding:20px;}h3{margin-top:25px;}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:20px;}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px;}th{background:#f4f4f4;}</style></head><body>`;
+        html += `<h2>Complete Financial Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
+        
+        html += `<h3>Transactions / Ledgers</h3><table><tr><th>Date</th><th>Party</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
+        filteredTxns.forEach(t => {
+            html += `<tr><td>${t.date}</td><td>${t.party}</td><td>${t.type}</td><td>${t.note || '-'}</td><td>${t.amount}</td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `<h3>Incomes</h3><table><tr><th>Date</th><th>Source Name</th><th>Amount (Rs)</th></tr>`;
+        filteredIncomes.forEach(i => {
+            html += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.amount}</td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `<h3>Cashflow / Savings</h3><table><tr><th>Date</th><th>Title</th><th>Category</th><th>Amount (Rs)</th></tr>`;
+        filteredSavings.forEach(s => {
+            html += `<tr><td>${s.date}</td><td>${s.title}</td><td>${s.category}</td><td>${s.amount}</td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `</body></html>`;
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
     function renderIncomeList() {
         const container = document.getElementById('income-list-container');
         container.innerHTML = '';
@@ -748,21 +781,6 @@
                 </div>
             `;
         });
-    }
-
-    function exportToCSV() {
-        let csv = 'Type,Party/Source,Category/Note,Amount,Date\n';
-        transactions.forEach(t => csv += `"Transaction","${t.party}","${t.note || t.type}","${t.amount}","${t.date}"\n`);
-        incomes.forEach(i => csv += `"Income","${i.name}","-","${i.amount}","${i.date}"\n`);
-        savings.forEach(s => csv += `"Cashflow","${s.title}","${s.category}","${s.amount}","${s.date}"\n`);
-
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.setAttribute('href', url);
-        a.setAttribute('download', `Digital_Khata_Backup_${new Date().toISOString().slice(0,10)}.csv`);
-        a.click();
-        showToast("CSV downloaded successfully!");
     }
 
     refreshAll();
