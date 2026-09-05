@@ -347,7 +347,6 @@
         calculateTotalAmount();
     }
 
-    // Transaction Calculation (NPR + INR*1.6) + Interest
     function calculateTotalAmount() {
         const npr = parseFloat(document.getElementById('txn-amount-npr').value) || 0;
         const inr = parseFloat(document.getElementById('txn-amount-inr').value) || 0;
@@ -365,7 +364,6 @@
         document.getElementById('txn-total-calc').value = total > 0 ? `Rs ${total.toFixed(2)}` : '';
     }
 
-    // Income Calculation (NPR + INR*1.6)
     function calculateIncomeTotal() {
         const npr = parseFloat(document.getElementById('income-amount-npr').value) || 0;
         const inr = parseFloat(document.getElementById('income-amount-inr').value) || 0;
@@ -373,7 +371,6 @@
         document.getElementById('income-total-calc').value = total > 0 ? `Rs ${total.toFixed(2)}` : '';
     }
 
-    // Savings Calculation (NPR + INR*1.6)
     function calculateSavingsTotal() {
         const npr = parseFloat(document.getElementById('savings-amount-npr').value) || 0;
         const inr = parseFloat(document.getElementById('savings-amount-inr').value) || 0;
@@ -381,10 +378,16 @@
         document.getElementById('savings-total-calc').value = total > 0 ? `Rs ${total.toFixed(2)}` : '';
     }
 
+    // Standardize Party Name (Capitalize/Trim properly to avoid duplicates like 'Krishna Khatri' & 'Krishna khatri')
+    function formatPartyName(name) {
+        if(!name) return '';
+        return name.trim().replace(/\s+/g, ' ');
+    }
+
     function saveTransaction(e) {
         e.preventDefault();
         const date = document.getElementById('txn-date').value;
-        const party = document.getElementById('txn-party').value.trim();
+        const party = formatPartyName(document.getElementById('txn-party').value);
         const type = document.getElementById('txn-type').value;
         const npr = parseFloat(document.getElementById('txn-amount-npr').value) || 0;
         const inr = parseFloat(document.getElementById('txn-amount-inr').value) || 0;
@@ -610,7 +613,7 @@
         filteredTxns.forEach(t => {
             if(t.type === 'Receivable') receivable += t.amount;
             else if(t.type === 'Payable') payable += t.amount;
-            else if(t.type === 'Expense') expense += t.amount;
+            else if(t.type === 'Expense') expense += t.amount; // खर्च लाई छुट्टै राखियो, payable मा जोडीएको छैन
         });
 
         let totalIncome = filteredIncomes.reduce((sum, i) => sum + i.amount, 0);
@@ -631,23 +634,31 @@
         const partyMap = {};
         transactions.forEach((t) => {
             if(t.type === 'Expense') return; // Skip expenses from party accounts ledger
-            if(!partyMap[t.party]) partyMap[t.party] = { receivable: 0, payable: 0 };
-            if(t.type === 'Receivable') partyMap[t.party].receivable += t.amount;
-            else if(t.type === 'Payable') partyMap[t.party].payable += t.amount;
+            
+            // Name normalization to group identical names (ignoring case differences)
+            const cleanParty = t.party.trim();
+            const lowerKey = cleanParty.toLowerCase();
+            
+            if(!partyMap[lowerKey]) {
+                partyMap[lowerKey] = { displayName: cleanParty, receivable: 0, payable: 0 };
+            }
+            
+            if(t.type === 'Receivable') partyMap[lowerKey].receivable += t.amount;
+            else if(t.type === 'Payable') partyMap[lowerKey].payable += t.amount;
         });
 
-        let parties = Object.keys(partyMap).sort();
+        let partyKeys = Object.keys(partyMap).sort();
         if(searchQuery) {
-            parties = parties.filter(p => p.toLowerCase().includes(searchQuery));
+            partyKeys = partyKeys.filter(k => partyMap[k].displayName.toLowerCase().includes(searchQuery));
         }
 
-        if(parties.length === 0) {
+        if(partyKeys.length === 0) {
             container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No party records found.</p>`;
             return;
         }
 
-        parties.forEach(party => {
-            const data = partyMap[party];
+        partyKeys.forEach(key => {
+            const data = partyMap[key];
             const net = data.receivable - data.payable;
             const netText = net >= 0 ? `To Take: Rs ${net.toLocaleString()}` : `To Give: Rs ${Math.abs(net).toLocaleString()}`;
             const badgeColor = net >= 0 ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40' : 'text-rose-500 bg-rose-50 dark:bg-rose-950/40';
@@ -655,10 +666,10 @@
             container.innerHTML += `
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-xl gap-2">
                     <div>
-                        <h4 class="font-bold text-xs text-slate-900 dark:text-white">${party}</h4>
+                        <h4 class="font-bold text-xs text-slate-900 dark:text-white">${data.displayName}</h4>
                         <p class="text-[11px] font-semibold mt-0.5 px-2 py-0.5 rounded inline-block ${badgeColor}">${netText}</p>
                     </div>
-                    <button onclick="openLedgerModal('${party}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">View Ledger / Settle</button>
+                    <button onclick="openLedgerModal('${data.displayName.replace(/'/g, "\\'")}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">View Ledger / Settle</button>
                 </div>
             `;
         });
@@ -686,7 +697,7 @@
         
         const partyTxns = [];
         transactions.forEach((t, idx) => {
-            if(t.party === activePartyName && t.type !== 'Expense') {
+            if(t.party && t.party.toLowerCase() === activePartyName.toLowerCase() && t.type !== 'Expense') {
                 partyTxns.push({ ...t, originalIndex: idx });
             }
         });
@@ -743,7 +754,7 @@
 
     function printPartyLedger() {
         const printWindow = window.open('', '_blank');
-        const partyTxns = transactions.filter(t => t.party === activePartyName && t.type !== 'Expense');
+        const partyTxns = transactions.filter(t => t.party && t.party.toLowerCase() === activePartyName.toLowerCase() && t.type !== 'Expense');
         let html = `<html><head><title>Ledger - ${activePartyName}</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
         html += `<h2>Party Statement: ${activePartyName}</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
         html += `<table><tr><th>Date</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
@@ -841,7 +852,6 @@
         let html = `<html><head><title>Complete Financial Report</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:20px;}th,td{border:1px solid #ddd;padding:6px;text-align:left;font-size:12px;}th{background:#f4f4f4;}h3{margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px;}</style></head><body>`;
         html += `<h2>Complete Financial Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
 
-        // Transactions & Expenses
         html += `<h3>Transactions & Expenses</h3>`;
         html += `<table><tr><th>Date</th><th>Name/Party</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
         filteredTxns.forEach(t => {
@@ -849,7 +859,6 @@
         });
         html += `</table>`;
 
-        // Incomes
         html += `<h3>Income Sources</h3>`;
         html += `<table><tr><th>Date</th><th>Source Name</th><th>Amount (Rs)</th></tr>`;
         filteredIncomes.forEach(i => {
@@ -857,7 +866,6 @@
         });
         html += `</table>`;
 
-        // Cashflow & Savings
         html += `<h3>Cashflow & Savings</h3>`;
         html += `<table><tr><th>Date</th><th>Title</th><th>Category</th><th>Amount (Rs)</th></tr>`;
         filteredSavings.forEach(s => {
