@@ -32,6 +32,10 @@
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.2); border-radius: 4px; }
+        * {
+    touch-action: manipulation;
+}
+
     </style>
 </head>
 
@@ -47,13 +51,22 @@
         
         <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
             <!-- Date Range Filter & Export PDF in one line -->
-            <div class="flex flex-row items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs">
+            <div class="flex flex-row items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs flex-wrap">
                 <i class="fa-solid fa-calendar text-slate-400"></i>
                 <input type="date" id="filter-from-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
                 <span class="text-slate-400">-</span>
                 <input type="date" id="filter-to-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
+                
+                <!-- ट्रान्जेक्सन प्रकार छान्ने ड्रपडाउन -->
+                <select id="transaction-type-filter" class="bg-transparent text-slate-900 dark:text-white outline-none border-l border-slate-300 dark:border-slate-700 pl-2">
+                    <option value="all" class="dark:bg-slate-900">सबै (All)</option>
+                    <option value="Receivable" class="dark:bg-slate-900">Receivable</option>
+                    <option value="Payable" class="dark:bg-slate-900">Payable</option>
+                    <option value="Expense" class="dark:bg-slate-900">Expense</option>
+                </select>
+
                 <button onclick="clearDateFilter()" class="text-slate-400 hover:text-rose-500 ml-1"><i class="fa-solid fa-xmark"></i></button>
-                <button type="button" onclick="exportToPDF()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ml-2">
+                <button type="button" id="generate-pdf-btn" onclick="exportToPDF()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ml-2">
                     <i class="fa-solid fa-file-pdf text-rose-500"></i> PDF
                 </button>
             </div>
@@ -378,7 +391,6 @@
         document.getElementById('savings-total-calc').value = total > 0 ? `Rs ${total.toFixed(2)}` : '';
     }
 
-    // Standardize Party Name (Capitalize/Trim properly to avoid duplicates like 'Krishna Khatri' & 'Krishna khatri')
     function formatPartyName(name) {
         if(!name) return '';
         return name.trim().replace(/\s+/g, ' ');
@@ -581,15 +593,19 @@
     function clearDateFilter() {
         document.getElementById('filter-from-date').value = '';
         document.getElementById('filter-to-date').value = '';
+        document.getElementById('transaction-type-filter').value = 'all';
         refreshAll();
     }
 
     function getDateFilteredData(data) {
         const fromDate = document.getElementById('filter-from-date').value;
         const toDate = document.getElementById('filter-to-date').value;
+        const selectedType = document.getElementById('transaction-type-filter').value;
+
         return data.filter(item => {
             if (fromDate && item.date < fromDate) return false;
             if (toDate && item.date > toDate) return false;
+            if (selectedType !== 'all' && item.type && item.type !== selectedType) return false;
             return true;
         });
     }
@@ -613,7 +629,7 @@
         filteredTxns.forEach(t => {
             if(t.type === 'Receivable') receivable += t.amount;
             else if(t.type === 'Payable') payable += t.amount;
-            else if(t.type === 'Expense') expense += t.amount; // खर्च लाई छुट्टै राखियो, payable मा जोडीएको छैन
+            else if(t.type === 'Expense') expense += t.amount;
         });
 
         let totalIncome = filteredIncomes.reduce((sum, i) => sum + i.amount, 0);
@@ -633,9 +649,8 @@
 
         const partyMap = {};
         transactions.forEach((t) => {
-            if(t.type === 'Expense') return; // Skip expenses from party accounts ledger
+            if(t.type === 'Expense') return;
             
-            // Name normalization to group identical names (ignoring case differences)
             const cleanParty = t.party.trim();
             const lowerKey = cleanParty.toLowerCase();
             
@@ -755,13 +770,19 @@
     function printPartyLedger() {
         const printWindow = window.open('', '_blank');
         const partyTxns = transactions.filter(t => t.party && t.party.toLowerCase() === activePartyName.toLowerCase() && t.type !== 'Expense');
-        let html = `<html><head><title>Ledger - ${activePartyName}</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
+        
+        let html = `<html><head><title>Ledger - ${activePartyName}</title><style>body{font-family:sans-serif;padding:20px;position:relative;}table{width:100%;border-collapse:collapse;margin-top:20px;position:relative;z-index:1;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
+        
+        // Watermark
+        html += `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 28pt; font-weight: bold; color: #94a3b8; opacity: 0.12; z-index: 0; pointer-events: none; text-align: center; width: 100%; white-space: nowrap;">Digital Notebook Kamal GC</div>`;
+
         html += `<h2>Party Statement: ${activePartyName}</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
         html += `<table><tr><th>Date</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
         partyTxns.forEach(t => {
             html += `<tr><td>${t.date}</td><td>${t.type}</td><td>${t.note || '-'}</td><td>${t.amount}</td></tr>`;
         });
         html += `</table></body></html>`;
+        
         printWindow.document.write(html);
         printWindow.document.close();
         printWindow.print();
@@ -770,13 +791,19 @@
     function printIncomePDF() {
         const printWindow = window.open('', '_blank');
         const filtered = getDateFilteredData(incomes);
-        let html = `<html><head><title>Income Sources</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
+        
+        let html = `<html><head><title>Income Sources</title><style>body{font-family:sans-serif;padding:20px;position:relative;}table{width:100%;border-collapse:collapse;margin-top:20px;position:relative;z-index:1;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
+        
+        // Watermark
+        html += `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 28pt; font-weight: bold; color: #94a3b8; opacity: 0.12; z-index: 0; pointer-events: none; text-align: center; width: 100%; white-space: nowrap;">Digital Notebook Kamal GC</div>`;
+
         html += `<h2>Income Sources Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
         html += `<table><tr><th>Date</th><th>Source Name</th><th>Amount (Rs)</th></tr>`;
         filtered.forEach(i => {
             html += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.amount}</td></tr>`;
         });
         html += `</table></body></html>`;
+        
         printWindow.document.write(html);
         printWindow.document.close();
         printWindow.print();
@@ -785,13 +812,19 @@
     function printSavingsPDF() {
         const printWindow = window.open('', '_blank');
         const filtered = getDateFilteredData(savings);
-        let html = `<html><head><title>Cashflow & Savings</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
+        
+        let html = `<html><head><title>Cashflow & Savings</title><style>body{font-family:sans-serif;padding:20px;position:relative;}table{width:100%;border-collapse:collapse;margin-top:20px;position:relative;z-index:1;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f4f4f4;}</style></head><body>`;
+        
+        // Watermark
+        html += `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 28pt; font-weight: bold; color: #94a3b8; opacity: 0.12; z-index: 0; pointer-events: none; text-align: center; width: 100%; white-space: nowrap;">Digital Notebook Kamal GC</div>`;
+
         html += `<h2>Cashflow & Savings Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
         html += `<table><tr><th>Date</th><th>Title</th><th>Category</th><th>Amount (Rs)</th></tr>`;
         filtered.forEach(s => {
             html += `<tr><td>${s.date}</td><td>${s.title}</td><td>${s.category}</td><td>${s.amount}</td></tr>`;
         });
         html += `</table></body></html>`;
+        
         printWindow.document.write(html);
         printWindow.document.close();
         printWindow.print();
@@ -849,7 +882,11 @@
         const filteredIncomes = getDateFilteredData(incomes);
         const filteredSavings = getDateFilteredData(savings);
 
-        let html = `<html><head><title>Complete Financial Report</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:20px;}th,td{border:1px solid #ddd;padding:6px;text-align:left;font-size:12px;}th{background:#f4f4f4;}h3{margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px;}</style></head><body>`;
+        let html = `<html><head><title>Complete Financial Report</title><style>body{font-family:sans-serif;padding:20px;position:relative;}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:20px;position:relative;z-index:1;}th,td{border:1px solid #ddd;padding:6px;text-align:left;font-size:12px;}th{background:#f4f4f4;}h3{margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px;position:relative;z-index:1;}</style></head><body>`;
+        
+        // Watermark added
+        html += `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 28pt; font-weight: bold; color: #94a3b8; opacity: 0.12; z-index: 0; pointer-events: none; text-align: center; width: 100%; white-space: nowrap;">Digital Notebook Kamal GC</div>`;
+
         html += `<h2>Complete Financial Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
 
         html += `<h3>Transactions & Expenses</h3>`;
