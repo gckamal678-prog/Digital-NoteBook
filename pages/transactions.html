@@ -61,62 +61,87 @@
         </div>
     </div>
 
-    <!-- Advanced Summary Cards -->
+    <!-- Advanced Summary Cards (4 Cards as requested) -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="bg-rose-50 dark:bg-rose-950/40 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50">
-            <p class="text-[11px] text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider">Total Receivable</p>
-            <h2 id="summary-receivable" class="text-lg md:text-xl font-extrabold text-rose-800 dark:text-rose-200 mt-1">Rs 0</h2>
-        </div>
-        <div class="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50">
-            <p class="text-[11px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider">Total Payable</p>
-            <h2 id="summary-payable" class="text-lg md:text-xl font-extrabold text-amber-800 dark:text-amber-200 mt-1">Rs 0</h2>
-        </div>
         <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
             <p class="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider">Total Income</p>
             <h2 id="summary-income" class="text-lg md:text-xl font-extrabold text-emerald-800 dark:text-emerald-200 mt-1">Rs 0</h2>
         </div>
-        <div class="bg-purple-50 dark:bg-purple-950/40 p-4 rounded-2xl border border-purple-200 dark:border-purple-900/50">
-            <p class="text-[11px] text-purple-700 dark:text-purple-400 font-bold uppercase tracking-wider">Net Balance</p>
-            <h2 id="summary-net" class="text-lg md:text-xl font-extrabold text-purple-800 dark:text-purple-200 mt-1">Rs 0</h2>
+        <div class="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+            <p class="text-[11px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider">Total Cashflow</p>
+            <h2 id="summary-cashflow" class="text-lg md:text-xl font-extrabold text-amber-800 dark:text-amber-200 mt-1">Rs 0</h2>
+        </div>
+        <div class="bg-rose-50 dark:bg-rose-950/40 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50">
+            <p class="text-[11px] text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider">Receivable (To Take)</p>
+            <h2 id="summary-receivable" class="text-lg md:text-xl font-extrabold text-rose-800 dark:text-rose-200 mt-1">Rs 0</h2>
+        </div>
+        <div class="bg-orange-50 dark:bg-orange-950/40 p-4 rounded-2xl border border-orange-200 dark:border-orange-900/50">
+            <p class="text-[11px] text-orange-700 dark:text-orange-400 font-bold uppercase tracking-wider">Payable (To Give)</p>
+            <h2 id="summary-payable" class="text-lg md:text-xl font-extrabold text-orange-800 dark:text-orange-200 mt-1">Rs 0</h2>
         </div>
     </div>
 
     <!-- ACCORDION CARD 1: ADD TRANSACTION -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-transaction')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-right-left text-blue-500"></i> Add New Transaction / Khata Entry</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-right-left text-blue-500"></i> Add New Transaction</span>
             <i id="icon-section-transaction" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
         <div id="content-section-transaction" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
             <form id="transaction-form" onsubmit="saveTransaction(event)" class="space-y-3">
                 <input type="hidden" id="edit-txn-index" value="">
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Party Name</label>
-                        <input type="text" id="txn-party" placeholder="e.g. Ram Bahadur" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Transaction Type</label>
-                        <select id="txn-type" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Receivable">You Will Get (लिनुपर्ने / Debit)</option>
-                            <option value="Payable">You Will Give (दिनुपर्ने / Credit)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (Rs)</label>
-                        <input type="number" step="any" id="txn-amount" placeholder="0.00" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date</label>
                         <input type="date" id="txn-date" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Name</label>
+                        <input type="text" id="txn-party" placeholder="Enter name" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
                 </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Type</label>
+                        <select id="txn-type" onchange="handleTypeChange()" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Receivable">Receivable (To Take)</option>
+                            <option value="Payable">Payable (To Give)</option>
+                            <option value="Expense">Expense (खर्च)</option>
+                        </select>
+                    </div>
+                    <div id="interest-fields-wrapper" class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Monthly Interest Rate (%)</label>
+                            <input type="number" step="any" id="txn-interest-rate" value="0" oninput="calculateTotalAmount()" placeholder="Monthly Rate (%)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Period (Months)</label>
+                            <input type="number" step="any" id="txn-period" value="0" oninput="calculateTotalAmount()" placeholder="Time in months" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="principal-amount-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Principal Amount (NPR / INR)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" step="any" id="txn-amount-npr" oninput="calculateTotalAmount()" placeholder="NPR (Rs)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                            <input type="number" step="any" id="txn-amount-inr" oninput="calculateTotalAmount()" placeholder="INR (₹)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Total Amount</label>
+                        <input type="text" id="txn-total-calc" readonly placeholder="Total calculation" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-xs outline-none font-bold">
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">Remarks / Note</label>
                     <input type="text" id="txn-note" placeholder="Optional details..." class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+
                 <div class="flex gap-2 pt-2">
                     <button type="button" id="txn-cancel-btn" onclick="resetTxnForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs">Cancel</button>
                     <button type="submit" id="txn-submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium p-2.5 rounded-xl text-xs transition">Save Transaction</button>
@@ -128,16 +153,14 @@
     <!-- ACCORDION CARD 2: PARTY ACCOUNTS & LEDGER -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-party')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-users text-purple-500"></i> Party Accounts (A-Z Ledger & Settlement)</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-users text-purple-500"></i> Party Accounts & Ledger</span>
             <i id="icon-section-party" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
         <div id="content-section-party" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
             <div class="flex justify-between items-center gap-2">
                 <input type="text" id="search-party" placeholder="Search party name..." oninput="renderPartyAccounts()" class="w-full md:w-64 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
             </div>
-            <div id="party-list-container" class="space-y-3">
-                <!-- Dynamically populated Party List -->
-            </div>
+            <div id="party-list-container" class="space-y-3"></div>
         </div>
     </div>
 
@@ -149,7 +172,6 @@
         </button>
         <div id="content-section-income" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
             <form id="income-form" onsubmit="saveIncome(event)" class="space-y-3">
-                <input type="hidden" id="edit-income-index" value="">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div class="md:col-span-2">
                         <input type="text" id="income-source-name" placeholder="Income Source Name" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
@@ -167,7 +189,7 @@
         </div>
     </div>
 
-    <!-- ACCORDION CARD 4: ADD CASHFLOW / SAVING -->
+    <!-- ACCORDION CARD 4: ADD CASHFLOW / SAVINGS -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-savings')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
             <span class="flex items-center gap-2"><i class="fa-solid fa-piggy-bank text-amber-500"></i> Add Cashflow / Savings</span>
@@ -175,7 +197,6 @@
         </button>
         <div id="content-section-savings" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
             <form id="savings-form" onsubmit="saveSavings(event)" class="space-y-3">
-                <input type="hidden" id="edit-savings-index" value="">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div class="md:col-span-2">
                         <input type="text" id="savings-title" placeholder="Cashflow Title" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
@@ -202,7 +223,7 @@
 <!-- Toast Notification -->
 <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-<!-- Party Ledger Modal for Partial Settle & PDF Print -->
+<!-- Party Ledger Modal -->
 <div id="ledger-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 p-3">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 w-full max-w-lg shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -215,8 +236,8 @@
             <div class="grid grid-cols-2 gap-2">
                 <input type="number" step="any" id="settle-amount" placeholder="Amount" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                 <select id="settle-type" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
-                    <option value="Paid">Payment Given (भुक्तानी दिएको)</option>
-                    <option value="Received">Payment Received (प्राप्त गरेको)</option>
+                    <option value="Paid">Payment Given</option>
+                    <option value="Received">Payment Received</option>
                 </select>
             </div>
             <div class="flex gap-2">
@@ -257,20 +278,62 @@
         icon.classList.toggle('rotate-180');
     }
 
+    function handleTypeChange() {
+        const type = document.getElementById('txn-type').value;
+        const interestWrapper = document.getElementById('interest-fields-wrapper');
+        if (type === 'Expense') {
+            interestWrapper.style.display = 'none';
+        } else {
+            interestWrapper.style.display = 'grid';
+        }
+        calculateTotalAmount();
+    }
+
+    function calculateTotalAmount() {
+        const npr = parseFloat(document.getElementById('txn-amount-npr').value) || 0;
+        const inr = parseFloat(document.getElementById('txn-amount-inr').value) || 0;
+        // Assuming conversion rate 1 INR = 1.6 NPR or combining raw values. Let's combine base principal (e.g., NPR + INR*1.6 or just sum them up / handle separately). Let's treat primary principal as NPR + (INR * 1.6) or simply sum numbers if user inputs either. Let's do Principal = npr + (inr * 1.6) or keep it straightforward: total principal base = npr + inr (or use conversion). Let's use simple sum or treat principal as principal base.
+        const principal = npr + inr; 
+        const rate = parseFloat(document.getElementById('txn-interest-rate').value) || 0;
+        const period = parseFloat(document.getElementById('txn-period').value) || 0;
+
+        const type = document.getElementById('txn-type').value;
+        let total = principal;
+        if (type !== 'Expense' && rate > 0 && period > 0) {
+            // Simple or compound interest formula. Simple interest: P + (P * r * t / 100)
+            const interest = (principal * rate * period) / 100;
+            total = principal + interest;
+        }
+
+        document.getElementById('txn-total-calc.value') || (document.getElementById('txn-total-calc').value = total > 0 ? `Rs ${total.toFixed(2)}` : '');
+    }
+
     function saveTransaction(e) {
         e.preventDefault();
+        const date = document.getElementById('txn-date').value;
         const party = document.getElementById('txn-party').value.trim();
         const type = document.getElementById('txn-type').value;
-        const amount = parseFloat(document.getElementById('txn-amount').value);
-        const date = document.getElementById('txn-date').value;
+        const npr = parseFloat(document.getElementById('txn-amount-npr').value) || 0;
+        const inr = parseFloat(document.getElementById('txn-amount-inr').value) || 0;
+        const principal = npr + inr;
+        const rate = parseFloat(document.getElementById('txn-interest-rate').value) || 0;
+        const period = parseFloat(document.getElementById('txn-period').value) || 0;
+        
+        let totalAmount = principal;
+        if (type !== 'Expense' && rate > 0 && period > 0) {
+            totalAmount = principal + (principal * rate * period) / 100;
+        }
+
         const note = document.getElementById('txn-note').value;
         const index = document.getElementById('edit-txn-index').value;
 
+        const txnData = { date, party, type, npr, inr, principal, rate, period, amount: totalAmount, note };
+
         if(index === "") {
-            transactions.push({ party, type, amount, date, note });
+            transactions.push(txnData);
             showToast("Transaction saved successfully!");
         } else {
-            transactions[index] = { party, type, amount, date, note };
+            transactions[index] = txnData;
             showToast("Transaction updated successfully!");
         }
 
@@ -316,8 +379,10 @@
         document.getElementById('transaction-form').reset();
         document.getElementById('edit-txn-index').value = "";
         document.getElementById('txn-date').valueAsDate = new Date();
+        document.getElementById('txn-total-calc').value = "";
         document.getElementById('txn-submit-btn').innerText = "Save Transaction";
         document.getElementById('txn-cancel-btn').classList.add('hidden');
+        handleTypeChange();
     }
 
     function applyGlobalFilters() {
@@ -350,22 +415,23 @@
     function updateSummaryCards() {
         const filteredTxns = getDateFilteredData(transactions);
         const filteredIncomes = getDateFilteredData(incomes);
+        const filteredSavings = getDateFilteredData(savings);
 
         let receivable = 0;
         let payable = 0;
 
         filteredTxns.forEach(t => {
             if(t.type === 'Receivable') receivable += t.amount;
-            else if(t.type === 'Payable') payable += t.amount;
+            else if(t.type === 'Payable' || t.type === 'Expense') payable += t.amount;
         });
 
         let totalIncome = filteredIncomes.reduce((sum, i) => sum + i.amount, 0);
-        let netBalance = (receivable + totalIncome) - payable;
+        let totalCashflow = filteredSavings.reduce((sum, s) => sum + s.amount, 0);
 
+        document.getElementById('summary-income').innerText = 'Rs ' + totalIncome.toLocaleString();
+        document.getElementById('summary-cashflow').innerText = 'Rs ' + totalCashflow.toLocaleString();
         document.getElementById('summary-receivable').innerText = 'Rs ' + receivable.toLocaleString();
         document.getElementById('summary-payable').innerText = 'Rs ' + payable.toLocaleString();
-        document.getElementById('summary-income').innerText = 'Rs ' + totalIncome.toLocaleString();
-        document.getElementById('summary-net').innerText = 'Rs ' + netBalance.toLocaleString();
     }
 
     function renderPartyAccounts() {
@@ -373,13 +439,12 @@
         const searchQuery = document.getElementById('search-party').value.toLowerCase();
         container.innerHTML = '';
 
-        // Group by party
         const partyMap = {};
         transactions.forEach(t => {
             if(!partyMap[t.party]) partyMap[t.party] = { receivable: 0, payable: 0, items: [] };
             partyMap[t.party].items.push(t);
             if(t.type === 'Receivable') partyMap[t.party].receivable += t.amount;
-            else if(t.type === 'Payable') partyMap[t.party].payable += t.amount;
+            else partyMap[t.party].payable += t.amount;
         });
 
         let parties = Object.keys(partyMap).sort();
@@ -395,7 +460,7 @@
         parties.forEach(party => {
             const data = partyMap[party];
             const net = data.receivable - data.payable;
-            const netText = net >= 0 ? `You will get: Rs ${net.toLocaleString()}` : `You will give: Rs ${Math.abs(net).toLocaleString()}`;
+            const netText = net >= 0 ? `To Take: Rs ${net.toLocaleString()}` : `To Give: Rs ${Math.abs(net).toLocaleString()}`;
             const badgeColor = net >= 0 ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40' : 'text-rose-500 bg-rose-50 dark:bg-rose-950/40';
 
             container.innerHTML += `
@@ -435,13 +500,13 @@
             return;
         }
 
-        partyTxns.forEach((t, idx) => {
+        partyTxns.forEach((t) => {
             const isRec = t.type === 'Receivable';
             content.innerHTML += `
                 <div class="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl">
                     <div>
                         <p class="font-semibold text-slate-900 dark:text-white">${t.date} - ${t.note || t.type}</p>
-                        <p class="text-[10px] text-slate-400">${t.type}</p>
+                        <p class="text-[10px] text-slate-400">${t.type} ${t.rate ? `(Rate: ${t.rate}%, Period: ${t.period}m)` : ''}</p>
                     </div>
                     <span class="font-bold ${isRec ? 'text-emerald-500' : 'text-rose-500'}">Rs ${t.amount.toLocaleString()}</span>
                 </div>
@@ -457,14 +522,14 @@
             return;
         }
 
-        // Add settlement transaction
         const txnType = type === 'Paid' ? 'Payable' : 'Receivable';
         transactions.push({
             party: activePartyName,
             type: txnType,
             amount: amount,
             date: new Date().toISOString().slice(0, 10),
-            note: `Partial Settlement (${type})`
+            note: `Partial Settlement (${type})`,
+            npr: amount, inr: 0, rate: 0, period: 0
         });
 
         saveData();
