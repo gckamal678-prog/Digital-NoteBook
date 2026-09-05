@@ -161,14 +161,56 @@
     <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
         <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-3">ℹ️ Policy, Terms & About</h4>
 
-        <div id="content-np" class="space-y-3">
+        <div class="space-y-3">
+            <!-- १. गोपनीयता नीति -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">१. गोपनीयता नीति (Privacy Policy)</h5>
-                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">हामी तपाईंको गोपनीयता र व्यक्तिगत डाटाको सुरक्षालाई उच्च प्राथमिकता दिन्छौं...</p>
-                <div id="more-privacy-np" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
-                    <p><strong>डाटाको स्थानीय भण्डारण:</strong> सबै व्यक्तिगत कारोबारका विवरणहरू मोबाइलको लोकल स्टोरेजमा मात्र सुरक्षित रहन्छन्।</p>
+                <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">१. गोपनीयता नीति र डाटा भण्डारण (Privacy Policy & Data Storage)</h5>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">तपाईँका हिसाब-किताब, कारोबार र बिलहरू फायरबेस (Firebase) को क्लाउड सर्भरमा सुरक्षित रूपमा भण्डारण हुन्छन्।</p>
+                <div id="more-privacy" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
+                    <p><strong>English:</strong> Your financial records, transactions, and bills are securely stored in the cloud using Firebase, ensuring your data is backed up.</p>
+                    <p><strong>नेपाली:</strong> यसले डाटाको ब्याकअप भइरहन्छ र मोबाइल परिवर्तन गरे पनि डाटा सुरक्षित रहन्छ।</p>
                 </div>
-                <button onclick="toggleText('privacy-np')" id="toggle-btn-privacy-np" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
+                <button onclick="toggleText('privacy')" id="toggle-btn-privacy" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
+            </div>
+
+            <!-- २. तेस्रो पक्षको पहुँच -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">२. तेस्रो पक्षको पहुँच (Third-Party Access)</h5>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">हामी तपाईँको व्यक्तिगत वित्तीय डाटा कुनै पनि अनाधिकृत तेस्रो पक्षलाई बिक्री वा हस्तान्तरण गर्दैनौं।</p>
+                <div id="more-thirdparty" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
+                    <p><strong>English:</strong> We do not sell, trade, or transfer your personal financial data to any unauthorized third parties.</p>
+                </div>
+                <button onclick="toggleText('thirdparty')" id="toggle-btn-thirdparty" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
+            </div>
+
+            <!-- ३. सुरक्षा र लगइन -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">३. सुरक्षा र लगइन (Security & Authentication)</h5>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">प्रयोगकर्ताले सुरक्षित रूपमा लगइन गर्न सक्छन्, तर आफ्नो लगइन विवरण गोप्य राख्ने जिम्मेवारी प्रयोगकर्ताको हुन्छ।</p>
+                <div id="more-security" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
+                    <p><strong>English:</strong> Users can securely log in using their credentials, but users are responsible for keeping their login details confidential.</p>
+                </div>
+                <button onclick="toggleText('security')" id="toggle-btn-security" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
+            </div>
+
+            <!-- ४. इन्टरनेट र सिंक -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">४. इन्टरनेट र सिंक (Internet & Sync)</h5>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">फायरबेस सर्भरमा डाटा वास्तविक समयमा सिंक र अपडेट गर्नका लागि इन्टरनेट जडानको आवश्यकता पर्दछ।</p>
+                <div id="more-internet" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
+                    <p><strong>English:</strong> The app may require an internet connection to sync and update your data in real-time with the Firebase server.</p>
+                </div>
+                <button onclick="toggleText('internet')" id="toggle-btn-internet" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
+            </div>
+
+            <!-- ५. डाटा मेटाउने अधिकार -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">५. डाटा मेटाउने अधिकार (Data Deletion Rights)</h5>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">प्रयोगकर्तासँग फायरबेस सर्भरमा रहेको आफ्नो खाता र डाटा जुनसुकै बेला मेटाउन अनुरोध गर्ने अधिकार हुन्छ।</p>
+                <div id="more-deletion" class="more-text text-xs text-slate-600 dark:text-slate-400 space-y-1.5 mt-2">
+                    <p><strong>English:</strong> Users have the right to request the deletion of their account and all associated data stored on the Firebase server at any time.</p>
+                </div>
+                <button onclick="toggleText('deletion')" id="toggle-btn-deletion" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
         </div>
         
@@ -182,20 +224,29 @@
     <!-- 5. FEEDBACK & FOOTER SECTION -->
     <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
         <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-comments text-indigo-500"></i> प्रतिक्रिया तथा सुझाव (Feedback)
+            <i class="fa-solid fa-comments text-indigo-500"></i> प्रतिक्रिया तथा सुझाव (Feedback & Suggestions)
         </h3>
-        <p class="text-xs text-slate-600 dark:text-slate-400">तपाईंलाई यो एप कस्तो लाग्यो? आफ्ना सल्लाह तथा सुझावहरू यहाँ पठाउन सक्नुहुन्छ:</p>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+            तपाईंलाई यो एप कस्तो लाग्यो? आफ्ना सल्लाह तथा सुझावहरू यहाँ पठाउन सक्नुहुन्छ:<br>
+            <span class="italic text-[11px] text-slate-500 dark:text-slate-500">How do you like this app? You can send your advice and suggestions here:</span>
+        </p>
 
         <form id="feedback-form" onsubmit="handleFeedback(event)" class="space-y-3">
             <div>
-                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">तपाईंको नाम:</label>
-                <input type="text" id="fb-name" required placeholder="तपाईंको नाम लेख्नुहोस्" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    तपाईंको नाम / Your Name:
+                </label>
+                <input type="text" id="fb-name" required placeholder="तपाईंको नाम लेख्नुहोस् (Enter your name)" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
             <div>
-                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">सुझाव वा प्रतिक्रिया:</label>
-                <textarea id="fb-msg" rows="3" required placeholder="तपाईंका सल्लाहहरू यहाँ लेख्नुहोस्..." class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    सुझाव वा प्रतिक्रिया / Message or Feedback:
+                </label>
+                <textarea id="fb-msg" rows="3" required placeholder="तपाईंका सल्लाहहरू यहाँ लेख्नुहोस्... (Write your feedback here...)" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
             </div>
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2.5 rounded-xl text-xs transition shadow-md shadow-indigo-600/20">पठाउनुहोस्</button>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2.5 rounded-xl text-xs transition shadow-md shadow-indigo-600/20">
+                पठाउनुहोस् (Submit)
+            </button>
         </form>
 
         <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-center space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
@@ -233,7 +284,6 @@
 </script>
 
 <script>
-    // Custom Toast Function (1 सेकेन्ड भित्र हराउने गरी मिलाइएको)
     function showToast(msg, type = "info") {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -247,7 +297,6 @@
             toast.classList.remove('translate-y-2', 'opacity-0');
         }, 10);
 
-        // १ सेकेन्ड (1000ms) पछि तुरुन्तै गायब हुने
         setTimeout(() => {
             toast.classList.add('opacity-0');
             setTimeout(() => toast.remove(), 300);
@@ -303,12 +352,10 @@
         document.getElementById('font-style-select').value = fStyle;
     }
 
-    // रिफ्रेस नगरिकन तुरुन्तै सबै सेटिङ एप्लाई गर्ने फंक्सन
     function applyAllSettings() {
         const lang = localStorage.getItem('language') || 'en';
         document.documentElement.setAttribute('lang', lang);
 
-        // Lang labels update
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
@@ -316,7 +363,6 @@
             }
         });
 
-        // Theme
         const theme = localStorage.getItem('theme') || 'dark';
         if (theme === 'light') {
             document.documentElement.classList.remove('dark');
@@ -324,15 +370,12 @@
             document.documentElement.classList.add('dark');
         }
 
-        // Font Size (15, 20, 30, 35)
         const fontSize = localStorage.getItem('font_size') || '15';
         document.body.style.fontSize = fontSize + 'px';
 
-        // Font Family
         const fontFamily = localStorage.getItem('font_family') || 'Poppins';
         document.body.style.fontFamily = `'${fontFamily}', sans-serif`;
 
-        // Font Style
         const fontStyle = localStorage.getItem('font_style') || 'normal';
         if (fontStyle === 'bold') {
             document.body.style.fontWeight = '700';
@@ -345,7 +388,6 @@
             document.body.style.fontStyle = 'normal';
         }
 
-        // Text Effects
         const textEffect = localStorage.getItem('text_effect') || 'normal';
         document.body.classList.remove('text-effect-shadow', 'text-effect-outline', 'text-effect-background', 'text-effect-hollow');
         if (textEffect !== 'normal') {
@@ -403,7 +445,6 @@
         showToast("Text Effect Updated!");
     }
 
-    // Feedback Send Handle (रिफ्रेस नभई सेन्ड हुने र मेसेज खाली हुने)
     function handleFeedback(event) {
         event.preventDefault();
         const name = document.getElementById('fb-name').value.trim();
@@ -414,7 +455,6 @@
             return;
         }
 
-        // यहाँ तपाईंले चाहेमा यसलाई API वा Firebase मा सेभ गर्न सक्नुहुन्छ। हाललाई लोकल स्टोरेजमा सेभ गरेर देखाउने बनाइएको छ।
         const feedbacks = JSON.parse(localStorage.getItem('user_feedbacks') || '[]');
         feedbacks.push({ name, msg, date: new Date().toISOString() });
         localStorage.setItem('user_feedbacks', JSON.stringify(feedbacks));
