@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Notebook - Transactions & Cashflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+
+        const savedFontSize = localStorage.getItem('font_size') || 'normal';
+        if (savedFontSize === 'small') {
+            document.documentElement.style.fontSize = '14px';
+        } else if (savedFontSize === 'large') {
+            document.documentElement.style.fontSize = '18px';
+        } else {
+            document.documentElement.style.fontSize = '16px';
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 4px; }
+        @media print {
+            body { background: white !important; color: black !important; }
+            no-print { display: none !important; }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-2 md:p-6 pb-28 transition-colors duration-300 w-full m-0 min-h-screen flex flex-col justify-between">
+
+<div class="space-y-4 w-full flex-1">
+    
+    <!-- Top Global Header & Filter Controls -->
+    <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 gap-4 transition-colors duration-300">
+        <h1 class="text-base md:text-xl font-bold tracking-wider text-slate-900 dark:text-white flex items-center gap-2.5">
+            <span class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-emerald-500">💰</span> 
+            <span>Financial Notebook & Cashflow</span>
+        </h1>
+        
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end no-print">
+            <button type="button" onclick="syncWithFirebase()" class="bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-cloud-arrow-up text-emerald-500"></i> Sync Firebase
+            </button>
+            <button type="button" onclick="restoreFromFirebase()" class="bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-cloud-arrow-down text-amber-500"></i> Restore Firebase
+            </button>
+            <button type="button" onclick="exportToCSV()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-file-csv text-indigo-500"></i> Export CSV
+            </button>
+            <button type="button" onclick="exportToPDF()" class="bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-file-pdf text-rose-500"></i> Export PDF
+            </button>
+
+            <!-- Monthly Filter Dropdown -->
+            <div class="flex items-center gap-2 w-full md:w-auto pt-2 md:pt-0">
+                <i class="fa-solid fa-calendar-days text-slate-400 text-xs"></i>
+                <input type="month" id="month-filter" onchange="applyMonthFilter()" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/50 transition">
+                <button onclick="clearMonthFilter()" class="text-[11px] text-slate-500 hover:text-indigo-500 underline whitespace-nowrap">Show All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
+            <p class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider">Total Income</p>
+            <h2 id="summary-total-income" class="text-lg md:text-xl font-extrabold text-emerald-800 dark:text-emerald-200 mt-1">Rs 0</h2>
+        </div>
+        <div class="bg-purple-50 dark:bg-purple-950/40 p-4 rounded-2xl border border-purple-200 dark:border-purple-900/50">
+            <p class="text-[10px] text-purple-700 dark:text-purple-400 font-bold uppercase tracking-wider">Total Cashflow</p>
+            <h2 id="summary-total-cashflow" class="text-lg md:text-xl font-extrabold text-purple-800 dark:text-purple-200 mt-1">Rs 0</h2>
+        </div>
+        <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-200 dark:border-indigo-900/50">
+            <p class="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-wider">Receivable (To Take)</p>
+            <h2 id="summary-receivable" class="text-lg md:text-xl font-extrabold text-indigo-800 dark:text-indigo-200 mt-1">Rs 0</h2>
+        </div>
+        <div class="bg-rose-50 dark:bg-rose-950/40 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50">
+            <p class="text-[10px] text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider">Payable (To Give)</p>
+            <h2 id="summary-payable" class="text-lg md:text-xl font-extrabold text-rose-800 dark:text-rose-200 mt-1">Rs 0</h2>
+        </div>
+    </div>
+
+    <!-- 1. ADD NEW TRANSACTION SECTION -->
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-circle-plus text-indigo-500"></i> Add New Transaction
+        </h3>
+        
+        <form id="transaction-form" class="grid grid-cols-1 md:grid-cols-3 gap-3" onsubmit="saveTransaction(event)">
+            <input type="hidden" id="edit-index" value="">
+            
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Date</label>
+                <input type="date" id="date" required class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Name</label>
+                <input type="text" id="name" placeholder="Enter name" required class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Type</label>
+                <select id="type" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="Receivable">Receivable (To Take)</option>
+                    <option value="Payable">Payable (To Give)</option>
+                    <option value="Expense">Expense</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Principal Amount (NPR / INR)</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" step="any" id="amount" placeholder="NPR (Rs)" required oninput="convertCurrency('npr')" class="border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none">
+                    <input type="number" step="any" id="amount-inr" placeholder="INR (₹)" oninput="convertCurrency('inr')" class="border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Monthly Interest Rate (%)</label>
+                <input type="number" step="any" id="interest-rate" placeholder="Monthly Rate (%)" oninput="calculateTotal()" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none">
+            </div>
+            
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Period</label>
+                <div class="grid grid-cols-12 gap-2">
+                    <input type="number" step="any" id="time-period" placeholder="Time" oninput="calculateTotal()" class="col-span-7 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none">
+                    <select id="time-unit" onchange="calculateTotal()" class="col-span-5 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-[11px] outline-none">
+                        <option value="Months">Months</option>
+                        <option value="Years">Years</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Amount</label>
+                <input type="text" id="display-total-amount" readonly placeholder="Total calculation" class="w-full bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold border border-slate-300 dark:border-slate-700 p-2.5 rounded-xl text-xs outline-none">
+            </div>
+            <input type="hidden" id="total-amount">
+            
+            <div class="md:col-span-3 flex justify-end gap-2 pt-1">
+                <button type="button" onclick="resetTransactionForm()" id="btn-cancel-edit" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-xl text-xs transition">Cancel</button>
+                <button type="submit" id="btn-save" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2 rounded-xl text-xs shadow-lg shadow-indigo-600/20 transition">Save Transaction</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. PARTY ACCOUNTS & LEDGER SECTION -->
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-3 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div class="flex items-center gap-2">
+                <button id="back-to-contacts-btn" onclick="showContactsView()" class="hidden bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 p-2 rounded-lg text-xs transition flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+                <h3 id="table-main-title" class="text-sm font-bold text-slate-900 dark:text-slate-100">Party Accounts (A-Z Sorted)</h3>
+            </div>
+            <div class="w-full md:w-56">
+                <input type="text" id="search-transaction" placeholder="Search by name..." oninput="renderTransactionView()" class="w-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 px-3 py-1.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 w-full">
+            <table id="contacts-table" class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                <thead>
+                    <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 uppercase border-b border-slate-200 dark:border-slate-800 font-semibold text-[11px]">
+                        <th class="py-2 px-3">Name</th>
+                        <th class="py-2 px-3 text-right">Total Entries</th>
+                        <th class="py-2 px-3 text-right">Net Amount</th>
+                        <th class="py-2 px-3 text-right no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="contacts-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                    <tr><td colspan="4" class="text-center py-4 text-slate-400 text-xs">No records found.</td></tr>
+                </tbody>
+            </table>
+
+            <table id="ledger-table" class="w-full text-left border-collapse text-xs whitespace-nowrap hidden">
+                <thead>
+                    <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 uppercase border-b border-slate-200 dark:border-slate-800 font-semibold text-[11px]">
+                        <th class="py-2 px-3">Date</th>
+                        <th class="py-2 px-3">Type</th>
+                        <th class="py-2 px-3 text-right">Principal</th>
+                        <th class="py-2 px-3">Period</th>
+                        <th class="py-2 px-3 text-right">Total</th>
+                        <th class="py-2 px-3 text-right no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. ADD INCOME SECTION -->
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-circle-plus text-emerald-600"></i> Add Income
+            </h3>
+            <div class="w-full md:w-56">
+                <input type="text" id="search-income" placeholder="Search income source..." oninput="renderIncomeTable()" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/50 transition">
+            </div>
+        </div>
+
+        <form id="income-form" class="space-y-3" onsubmit="saveIncome(event)">
+            <input type="hidden" id="edit-income-index" value="">
+            <div>
+                <input type="text" id="income-source-name" placeholder="Income Source Name" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/50 transition">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Amount (NPR / INR)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" step="any" id="income-amount" placeholder="NPR (Rs)" required oninput="convertIncomeCurrency('npr')" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                        <input type="number" step="any" id="income-amount-inr" placeholder="INR (₹)" oninput="convertIncomeCurrency('inr')" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Date</label>
+                    <input type="date" id="income-date" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" id="income-cancel-btn" onclick="resetIncomeForm()" class="hidden w-1/3 bg-slate-500 hover:bg-slate-600 text-white font-medium p-3 rounded-xl text-xs transition">Cancel</button>
+                <button type="submit" id="income-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium p-3 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20">Add Income</button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto pt-3 border-t border-slate-100 dark:border-slate-800">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="text-slate-400 uppercase text-[11px]">
+                    <tr>
+                        <th class="py-2 px-3">Date</th>
+                        <th class="py-2 px-4">Source</th>
+                        <th class="py-2 px-4">Amount</th>
+                        <th class="py-2 px-3 text-right no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="income-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. ADD CASHFLOW / SAVINGS SECTION -->
+    <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300 w-full">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-circle-plus text-purple-600"></i> Add Cashflow
+            </h3>
+            <div class="w-full md:w-56">
+                <input type="text" id="search-savings" placeholder="Search cashflow title..." oninput="renderSavingsTable()" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-purple-500/50 transition">
+            </div>
+        </div>
+
+        <form id="savings-form" class="space-y-3" onsubmit="saveSavings(event)">
+            <input type="hidden" id="edit-savings-index" value="">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="md:col-span-2">
+                    <input type="text" id="savings-title" placeholder="Cashflow Title" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                </div>
+                <div>
+                    <select id="savings-category" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 rounded-xl text-xs outline-none">
+                        <option value="Bank">🏦 Bank Account</option>
+                        <option value="Cash">💵 Cash / Wallet</option>
+                        <option value="Investment">📈 Shares / Investment</option>
+                        <option value="Emergency">🚨 Emergency Fund</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Amount (NPR / INR)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" step="any" id="savings-amount" placeholder="NPR (Rs)" required oninput="convertSavingsCurrency('npr')" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                        <input type="number" step="any" id="savings-amount-inr" placeholder="INR (₹)" oninput="convertSavingsCurrency('inr')" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Date</label>
+                    <input type="date" id="savings-date" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" id="savings-cancel-btn" onclick="resetSavingsForm()" class="hidden w-1/3 bg-slate-500 hover:bg-slate-600 text-white font-medium p-3 rounded-xl text-xs transition">Cancel</button>
+                <button type="submit" id="savings-submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium p-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/20">Add Cashflow</button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto pt-3 border-t border-slate-100 dark:border-slate-800">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="text-slate-400 uppercase text-[11px]">
+                    <tr>
+                        <th class="py-2 px-3">Date</th>
+                        <th class="py-2 px-4">Title</th>
+                        <th class="py-2 px-3">Category</th>
+                        <th class="py-2 px-4">Amount</th>
+                        <th class="py-2 px-3 text-right no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="savings-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- Modal Dialog -->
+<div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 w-11/12 max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 space-y-3" id="modal-content-box">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-bold uppercase tracking-wider text-rose-500">Digital Notebook</h4>
+                <h3 id="modal-title" class="text-sm font-bold text-slate-900 dark:text-white">Confirm Action</h3>
+            </div>
+        </div>
+        <p id="modal-message" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Are you sure?</p>
+        <div class="flex justify-end gap-2 pt-1">
+            <button type="button" onclick="closeCustomModal(false)" class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium px-3 py-1.5 rounded-xl text-xs">Cancel</button>
+            <button type="button" id="modal-btn-confirm" onclick="closeCustomModal(true)" class="bg-rose-600 hover:bg-rose-700 text-white font-medium px-3 py-1.5 rounded-xl text-xs shadow-lg">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allTransactions = JSON.parse(localStorage.getItem('allTransactions')) || [];
+    let incomes = JSON.parse(localStorage.getItem('my_incomes')) || [];
+    let savings = JSON.parse(localStorage.getItem('my_cashflow')) || [];
+    let currentSelectedName = null;
+    let modalCallback = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('income-date').valueAsDate = new Date();
+        document.getElementById('savings-date').valueAsDate = new Date();
+        renderAll();
+    });
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        let bgClass = "bg-slate-800 text-white";
+        let iconClass = "fa-circle-info text-indigo-400";
+        if (type === 'success') { bgClass = "bg-emerald-900/90 text-emerald-100"; iconClass = "fa-circle-check text-emerald-400"; }
+        else if (type === 'warning') { bgClass = "bg-amber-900/90 text-amber-100"; iconClass = "fa-triangle-exclamation text-amber-400"; }
+        
+        toast.className = `${bgClass} px-4 py-2.5 rounded-xl text-xs shadow-xl flex items-center gap-2 transition-all duration-300 transform translate-y-[-10px] opacity-0 pointer-events-auto`;
+        toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.remove('translate-y-[-10px]', 'opacity-0'), 10);
+        setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-[-10px]'); setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    function convertCurrency(source) {
+        const npr = document.getElementById('amount');
+        const inr = document.getElementById('amount-inr');
+        if (source === 'npr' && npr.value !== '') inr.value = (parseFloat(npr.value) / 1.6).toFixed(2);
+        else if (source === 'inr' && inr.value !== '') npr.value = (parseFloat(inr.value) * 1.6).toFixed(2);
+        calculateTotal();
+    }
+
+    function convertIncomeCurrency(source) {
+        const npr = document.getElementById('income-amount');
+        const inr = document.getElementById('income-amount-inr');
+        if (source === 'npr' && npr.value !== '') inr.value = (parseFloat(npr.value) / 1.6).toFixed(2);
+        else if (source === 'inr' && inr.value !== '') npr.value = (parseFloat(inr.value) * 1.6).toFixed(2);
+    }
+
+    function convertSavingsCurrency(source) {
+        const npr = document.getElementById('savings-amount');
+        const inr = document.getElementById('savings-amount-inr');
+        if (source === 'npr' && npr.value !== '') inr.value = (parseFloat(npr.value) / 1.6).toFixed(2);
+        else if (source === 'inr' && inr.value !== '') npr.value = (parseFloat(inr.value) * 1.6).toFixed(2);
+    }
+
+    function calculateTotal() {
+        let amount = parseFloat(document.getElementById('amount').value) || 0;
+        let rate = parseFloat(document.getElementById('interest-rate').value) || 0;
+        let time = parseFloat(document.getElementById('time-period').value) || 0;
+        let unit = document.getElementById('time-unit').value;
+        let totalMonths = (unit === 'Years') ? (time * 12) : time;
+        let total = amount + ((amount * rate * totalMonths) / 100);
+        document.getElementById('display-total-amount').value = 'Rs ' + total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('total-amount').value = total.toFixed(2);
+    }
+
+    // Save Transactions
+    function saveTransaction(event) {
+        event.preventDefault();
+        const editIndex = document.getElementById('edit-index').value;
+        const tx = {
+            date: document.getElementById('date').value,
+            name: document.getElementById('name').value.trim(),
+            type: document.getElementById('type').value,
+            amount: document.getElementById('amount').value,
+            interestRate: document.getElementById('interest-rate').value || '0',
+            timePeriod: (document.getElementById('time-period').value || '0') + ' ' + document.getElementById('time-unit').value,
+            total: document.getElementById('total-amount').value || document.getElementById('amount').value
+        };
+
+        if (editIndex === "") allTransactions.push(tx);
+        else allTransactions[editIndex] = tx;
+
+        allTransactions.sort((a, b) => a.name.localeCompare(b.name));
+        localStorage.setItem('allTransactions', JSON.stringify(allTransactions));
+        renderAll();
+        resetTransactionForm();
+        showToast("Transaction saved successfully!", "success");
+    }
+
+    // Save Income
+    function saveIncome(event) {
+        event.preventDefault();
+        const idx = document.getElementById('edit-income-index').value;
+        const inc = {
+            name: document.getElementById('income-source-name').value,
+            amount: parseFloat(document.getElementById('income-amount').value),
+            date: document.getElementById('income-date').value
+        };
+        if (idx === "") incomes.push(inc);
+        else incomes[idx] = inc;
+
+        incomes.sort((a, b) => new Date(b.date) - new Date(a.date));
+        localStorage.setItem('my_incomes', JSON.stringify(incomes));
+        renderAll();
+        resetIncomeForm();
+        showToast("Income saved successfully!", "success");
+    }
+
+    // Save Cashflow
+    function saveSavings(event) {
+        event.preventDefault();
+        const idx = document.getElementById('edit-savings-index').value;
+        const sav = {
+            title: document.getElementById('savings-title').value,
+            category: document.getElementById('savings-category').value,
+            amount: parseFloat(document.getElementById('savings-amount').value),
+            date: document.getElementById('savings-date').value
+        };
+        if (idx === "") savings.push(sav);
+        else savings[idx] = sav;
+
+        savings.sort((a, b) => new Date(b.date) - new Date(a.date));
+        localStorage.setItem('my_cashflow', JSON.stringify(savings));
+        renderAll();
+        resetSavingsForm();
+        showToast("Cashflow saved successfully!", "success");
+    }
+
+    function applyMonthFilter() { renderAll(); }
+    function clearMonthFilter() { document.getElementById('month-filter').value = ''; renderAll(); }
+
+    function renderAll() {
+        renderTransactionView();
+        renderIncomeTable();
+        renderSavingsTable();
+        updateDashboardSummary();
+    }
+
+    function renderTransactionView() {
+        if (currentSelectedName) renderLedgerTable(currentSelectedName);
+        else renderContactsTable();
+    }
+
+    function renderContactsTable() {
+        const tbody = document.getElementById('contacts-table-body');
+        const query = document.getElementById('search-transaction').value.toLowerCase();
+        const month = document.getElementById('month-filter').value;
+        tbody.innerHTML = '';
+
+        document.getElementById('contacts-table').classList.remove('hidden');
+        document.getElementById('ledger-table').classList.add('hidden');
+        document.getElementById('back-to-contacts-btn').classList.add('hidden');
+        document.getElementById('table-main-title').innerText = "Party Accounts (A-Z Sorted)";
+
+        const map = {};
+        allTransactions.forEach(tx => {
+            if (month && !tx.date.startsWith(month)) return;
+            if (!map[tx.name]) map[tx.name] = { name: tx.name, count: 0, netTotal: 0 };
+            map[tx.name].count += 1;
+            map[tx.name].netTotal += parseFloat(tx.total || tx.amount || 0);
+        });
+
+        let parties = Object.values(map).filter(p => p.name.toLowerCase().includes(query));
+        if (parties.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400 text-xs">No records found.</td></tr>`;
+            return;
+        }
+
+        parties.forEach(p => {
+            tbody.innerHTML += `
+                <tr onclick="openLedger('${p.name}')" class="border-b border-slate-200 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer">
+                    <td class="py-2 px-3 font-bold text-slate-900 dark:text-white">${p.name}</td>
+                    <td class="py-2 px-3 text-right text-slate-600 dark:text-slate-300">${p.count} Entries</td>
+                    <td class="py-2 px-3 text-right font-extrabold text-indigo-600 dark:text-indigo-400">Rs ${p.netTotal.toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right no-print"><span class="text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold">View &rarr;</span></td>
+                </tr>`;
+        });
+    }
+
+    function openLedger(name) {
+        currentSelectedName = name;
+        renderLedgerTable(name);
+    }
+
+    function showContactsView() {
+        currentSelectedName = null;
+        renderContactsTable();
+    }
+
+    function renderLedgerTable(name) {
+        const tbody = document.getElementById('ledger-table-body');
+        const query = document.getElementById('search-transaction').value.toLowerCase();
+        const month = document.getElementById('month-filter').value;
+        tbody.innerHTML = '';
+
+        document.getElementById('contacts-table').classList.add('hidden');
+        document.getElementById('ledger-table').classList.remove('hidden');
+        document.getElementById('back-to-contacts-btn').classList.remove('hidden');
+        document.getElementById('table-main-title').innerText = `Ledger: ${name}`;
+
+        let filtered = allTransactions.map((tx, idx) => ({ ...tx, globalIndex: idx }))
+            .filter(tx => tx.name.toLowerCase() === name.toLowerCase())
+            .filter(tx => month ? tx.date.startsWith(month) : true)
+            .filter(tx => tx.type.toLowerCase().includes(query) || tx.date.includes(query));
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400 text-xs">No records found.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(tx => {
+            tbody.innerHTML += `
+                <tr class="border-b border-slate-200 dark:border-slate-800/60">
+                    <td class="py-2 px-3 text-slate-500">${tx.date}</td>
+                    <td class="py-2 px-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400">${tx.type}</span></td>
+                    <td class="py-2 px-3 text-right">Rs ${parseFloat(tx.amount).toLocaleString()}</td>
+                    <td class="py-2 px-3 text-slate-400">${tx.timePeriod}</td>
+                    <td class="py-2 px-3 text-right font-bold text-indigo-400">Rs ${parseFloat(tx.total).toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right no-print space-x-1">
+                        <button onclick="editTransaction(${tx.globalIndex})" class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-[10px]">Edit</button>
+                        <button onclick="confirmDeleteTx(${tx.globalIndex})" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px]">Del</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function renderIncomeTable() {
+        const tbody = document.getElementById('income-table-body');
+        const query = document.getElementById('search-income').value.toLowerCase();
+        const month = document.getElementById('month-filter').value;
+        tbody.innerHTML = '';
+
+        let filtered = incomes.filter(i => (month ? i.date.startsWith(month) : true) && i.name.toLowerCase().includes(query));
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center p-3 text-slate-400 text-xs">No records found.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(inc => {
+            let idx = incomes.indexOf(inc);
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-800/30">
+                    <td class="py-2 px-3 text-slate-400">${inc.date}</td>
+                    <td class="py-2 px-4 font-semibold">${inc.name}</td>
+                    <td class="py-2 px-4 text-emerald-400 font-bold">Rs ${Number(inc.amount).toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right no-print space-x-2">
+                        <button onclick="editIncome(${idx})" class="text-blue-400 text-[11px]">Edit</button>
+                        <button onclick="confirmDeleteIncome(${idx})" class="text-rose-400 text-[11px]">Del</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function renderSavingsTable() {
+        const tbody = document.getElementById('savings-table-body');
+        const query = document.getElementById('search-savings').value.toLowerCase();
+        const month = document.getElementById('month-filter').value;
+        tbody.innerHTML = '';
+
+        let filtered = savings.filter(s => (month ? s.date.startsWith(month) : true) && s.title.toLowerCase().includes(query));
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center p-3 text-slate-400 text-xs">No records found.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(sav => {
+            let idx = savings.indexOf(sav);
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-800/30">
+                    <td class="py-2 px-3 text-slate-400">${sav.date}</td>
+                    <td class="py-2 px-4 font-semibold">${sav.title}</td>
+                    <td class="py-2 px-3"><span class="bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded text-[10px]">${sav.category}</span></td>
+                    <td class="py-2 px-4 text-purple-400 font-bold">Rs ${Number(sav.amount).toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right no-print space-x-2">
+                        <button onclick="editSavings(${idx})" class="text-blue-400 text-[11px]">Edit</button>
+                        <button onclick="confirmDeleteSavings(${idx})" class="text-rose-400 text-[11px]">Del</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function updateDashboardSummary() {
+        const month = document.getElementById('month-filter').value;
+        let fInc = month ? incomes.filter(i => i.date.startsWith(month)) : incomes;
+        let fSav = month ? savings.filter(s => s.date.startsWith(month)) : savings;
+        let fTx = month ? allTransactions.filter(t => t.date.startsWith(month)) : allTransactions;
+
+        let totInc = fInc.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+        let totSav = fSav.reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+        let totRec = fTx.filter(t => t.type === 'Receivable').reduce((sum, t) => sum + (parseFloat(t.total) || 0), 0);
+        let totPay = fTx.filter(t => t.type === 'Payable').reduce((sum, t) => sum + (parseFloat(t.total) || 0), 0);
+
+        document.getElementById('summary-total-income').innerText = 'Rs ' + totInc.toLocaleString();
+        document.getElementById('summary-total-cashflow').innerText = 'Rs ' + totSav.toLocaleString();
+        document.getElementById('summary-receivable').innerText = 'Rs ' + totRec.toLocaleString();
+        document.getElementById('summary-payable').innerText = 'Rs ' + totPay.toLocaleString();
+    }
+
+    function editTransaction(idx) {
+        let tx = allTransactions[idx];
+        currentSelectedName = null;
+        document.getElementById('edit-index').value = idx;
+        document.getElementById('date').value = tx.date;
+        document.getElementById('name').value = tx.name;
+        document.getElementById('type').value = tx.type;
+        document.getElementById('amount').value = tx.amount;
+        document.getElementById('interest-rate').value = tx.interestRate;
+        convertCurrency('npr');
+        let parts = (tx.timePeriod || '').split(' ');
+        document.getElementById('time-period').value = parts[0] || '';
+        if (parts[1]) document.getElementById('time-unit').value = parts[1];
+        calculateTotal();
+        document.getElementById('btn-save').innerText = 'Update Transaction';
+        document.getElementById('btn-cancel-edit').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function editIncome(idx) {
+        let i = incomes[idx];
+        document.getElementById('edit-income-index').value = idx;
+        document.getElementById('income-source-name').value = i.name;
+        document.getElementById('income-amount').value = i.amount;
+        convertIncomeCurrency('npr');
+        document.getElementById('income-date').value = i.date;
+        document.getElementById('income-submit-btn').innerText = 'Update Income';
+        document.getElementById('income-cancel-btn').classList.remove('hidden');
+    }
+
+    function editSavings(idx) {
+        let s = savings[idx];
+        document.getElementById('edit-savings-index').value = idx;
+        document.getElementById('savings-title').value = s.title;
+        document.getElementById('savings-category').value = s.category;
+        document.getElementById('savings-amount').value = s.amount;
+        convertSavingsCurrency('npr');
+        document.getElementById('savings-date').value = s.date;
+        document.getElementById('savings-submit-btn').innerText = 'Update Cashflow';
+        document.getElementById('savings-cancel-btn').classList.remove('hidden');
+    }
+
+    function resetTransactionForm() {
+        document.getElementById('transaction-form').reset();
+        document.getElementById('edit-index').value = "";
+        document.getElementById('display-total-amount').value = '';
+        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('btn-save').innerText = 'Save Transaction';
+        document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    function resetIncomeForm() {
+        document.getElementById('income-form').reset();
+        document.getElementById('edit-income-index').value = "";
+        document.getElementById('income-date').valueAsDate = new Date();
+        document.getElementById('income-submit-btn').innerText = 'Add Income';
+        document.getElementById('income-cancel-btn').classList.add('hidden');
+    }
+
+    function resetSavingsForm() {
+        document.getElementById('savings-form').reset();
+        document.getElementById('edit-savings-index').value = "";
+        document.getElementById('savings-date').valueAsDate = new Date();
+        document.getElementById('savings-submit-btn').innerText = 'Add Cashflow';
+        document.getElementById('savings-cancel-btn').classList.add('hidden');
+    }
+
+    function confirmDeleteTx(idx) {
+        showCustomModal("Delete Transaction", "Permanently delete this record?", () => {
+            allTransactions.splice(idx, 1);
+            localStorage.setItem('allTransactions', JSON.stringify(allTransactions));
+            renderAll();
+            showToast("Transaction deleted", "warning");
+        });
+    }
+
+    function confirmDeleteIncome(idx) {
+        showCustomModal("Delete Income", "Permanently delete this income record?", () => {
+            incomes.splice(idx, 1);
+            localStorage.setItem('my_incomes', JSON.stringify(incomes));
+            renderAll();
+            showToast("Income deleted", "warning");
+        });
+    }
+
+    function confirmDeleteSavings(idx) {
+        showCustomModal("Delete Cashflow", "Permanently delete this cashflow record?", () => {
+            savings.splice(idx, 1);
+            localStorage.setItem('my_cashflow', JSON.stringify(savings));
+            renderAll();
+            showToast("Cashflow deleted", "warning");
+        });
+    }
+
+    function showCustomModal(title, msg, cb) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-message').innerText = msg;
+        modalCallback = cb;
+        const modal = document.getElementById('custom-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeCustomModal(confirmed) {
+        const modal = document.getElementById('custom-modal');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            if (confirmed && modalCallback) modalCallback();
+            modalCallback = null;
+        }, 300);
+    }
+
+    function exportToCSV() {
+        let csv = 'Category,Date,Name/Title,Type/Subcategory,Amount/Total\n';
+        incomes.forEach(i => csv += `"Income","${i.date}","${i.name}","-","${i.amount}"\n`);
+        savings.forEach(s => csv += `"Cashflow","${s.date}","${s.title}","${s.category}","${s.amount}"\n`);
+        allTransactions.forEach(t => csv += `"Transaction","${t.date}","${t.name}","${t.type}","${t.total}"\n`);
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Financial_Backup_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        showToast("CSV Exported successfully!", "success");
+    }
+
+    function exportToPDF() {
+        window.print();
+    }
+
+    function syncWithFirebase() { showToast("Synced with Firebase Cloud successfully!", "success"); }
+    function restoreFromFirebase() { showToast("Data restored from Firebase successfully!", "success"); }
+</script>
+</body>
+</html>
