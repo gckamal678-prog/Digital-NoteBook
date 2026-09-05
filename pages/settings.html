@@ -30,9 +30,13 @@
             color: transparent;
             -webkit-text-stroke: 1px #6366f1;
         }
+        /* Mobile touch fix for flickering */
+        a, button {
+            touch-action: manipulation;
+        }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-3 md:p-6 pb-16 transition-colors duration-300 w-full min-h-screen m-0 relative">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-3 md:p-6 pb-24 pt-4 transition-colors duration-300 w-full min-h-screen m-0 relative">
 
 <!-- Custom Toast Notification Container -->
 <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
@@ -54,7 +58,7 @@
     </div>
 </div>
 
-<div class="space-y-4 w-full flex-1 mt-1 max-w-4xl mx-auto">
+<div class="space-y-4 w-full flex-1 mt-4 max-w-4xl mx-auto">
     
     <!-- 1. APPEARANCE & THEME SECTION -->
     <div class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm space-y-4 border border-slate-200 dark:border-slate-800 transition-colors duration-300">
@@ -129,7 +133,6 @@
             <i class="fa-solid fa-database text-indigo-500"></i> <span data-i18n="data_management">Data Management & Backup</span>
         </h3>
         
-        <!-- Local JSON Options -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
             <button onclick="backupData()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium p-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20">
                 <i class="fa-solid fa-download"></i> <span data-i18n="btn_backup">Backup JSON</span>
@@ -143,7 +146,6 @@
             </button>
         </div>
 
-        <!-- Cloud Firebase Sync Options -->
         <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
             <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-2">Cloud Backup (Firebase Database)</label>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -162,7 +164,6 @@
         <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-3">ℹ️ Policy, Terms & About</h4>
 
         <div class="space-y-3">
-            <!-- १. गोपनीयता नीति -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">१. गोपनीयता नीति र डाटा भण्डारण (Privacy Policy & Data Storage)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">तपाईँका हिसाब-किताब, कारोबार र बिलहरू फायरबेस (Firebase) को क्लाउड सर्भरमा सुरक्षित रूपमा भण्डारण हुन्छन्।</p>
@@ -173,7 +174,6 @@
                 <button onclick="toggleText('privacy')" id="toggle-btn-privacy" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <!-- २. तेस्रो पक्षको पहुँच -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">२. तेस्रो पक्षको पहुँच (Third-Party Access)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">हामी तपाईँको व्यक्तिगत वित्तीय डाटा कुनै पनि अनाधिकृत तेस्रो पक्षलाई बिक्री वा हस्तान्तरण गर्दैनौं।</p>
@@ -183,7 +183,6 @@
                 <button onclick="toggleText('thirdparty')" id="toggle-btn-thirdparty" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <!-- ३. सुरक्षा र लगइन -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">३. सुरक्षा र लगइन (Security & Authentication)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">प्रयोगकर्ताले सुरक्षित रूपमा लगइन गर्न सक्छन्, तर आफ्नो लगइन विवरण गोप्य राख्ने जिम्मेवारी प्रयोगकर्ताको हुन्छ।</p>
@@ -193,7 +192,6 @@
                 <button onclick="toggleText('security')" id="toggle-btn-security" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <!-- ४. इन्टरनेट र सिंक -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">४. इन्टरनेट र सिंक (Internet & Sync)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">फायरबेस सर्भरमा डाटा वास्तविक समयमा सिंक र अपडेट गर्नका लागि इन्टरनेट जडानको आवश्यकता पर्दछ।</p>
@@ -203,7 +201,6 @@
                 <button onclick="toggleText('internet')" id="toggle-btn-internet" class="text-indigo-600 dark:text-indigo-400 font-bold text-xs mt-2.5 block hover:underline">See More (थप हेर्नुहोस्)</button>
             </div>
 
-            <!-- ५. डाटा मेटाउने अधिकार -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <h5 class="font-bold text-xs text-slate-800 dark:text-slate-200">५. डाटा मेटाउने अधिकार (Data Deletion Rights)</h5>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">प्रयोगकर्तासँग फायरबेस सर्भरमा रहेको आफ्नो खाता र डाटा जुनसुकै बेला मेटाउन अनुरोध गर्ने अधिकार हुन्छ।</p>
