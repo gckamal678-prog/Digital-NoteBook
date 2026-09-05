@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Income, Cashflow & Party Ledger - Digital Notebook</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -28,7 +30,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; }
+        body { font-family: 'Poppins', sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.2); border-radius: 4px; }
@@ -38,73 +40,62 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-2 md:p-6 pb-28 transition-colors duration-300 w-full m-0 min-h-screen flex flex-col justify-between">
 
 <div class="space-y-4 w-full flex-1 max-w-5xl mx-auto">
-    <!-- Header Section with Corrected Global PDF Filter -->
+    <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 gap-4">
         <h1 class="text-base md:text-xl font-bold tracking-wider text-slate-900 dark:text-white flex items-center gap-2.5">
             <span class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-emerald-500">📊</span> 
-            <span id="profile-org-name">Cashflow & Ledger</span>
+            <span data-i18n="header_title">Cashflow & Ledger</span>
         </h1>
         
         <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-            <!-- Global PDF & Date Filter Container -->
-            <div class="pdf-filter-container bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 flex-wrap">
-                <span class="text-[11px] font-semibold text-slate-400">Filter:</span>
-                <input type="date" id="start-date" class="date-input border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-xs outline-none"> 
-                <span class="text-slate-400">से</span> 
-                <input type="date" id="end-date" class="date-input border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-xs outline-none">
+            <!-- Language Switcher -->
+            <select id="language-switcher" onchange="switchLanguage(this.value)" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-xl text-xs outline-none font-semibold">
+                <option value="en">English</option>
+                <option value="ne">नेपाली</option>
+            </select>
 
-                <select id="transaction-type-filter" class="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-xs outline-none">
-                    <option value="all">सबै (All)</option>
-                    <option value="Receivable">लिने (Receivable)</option>
-                    <option value="Expense">खर्च (Expense)</option>
-                    <option value="Payable">दिने (Payable)</option>
-                    <option value="Savings">बचत (Savings)</option>
-                    <option value="Income">Income</option>
-                </select>
-
-                <button type="button" id="generate-pdf-btn" class="bg-rose-500 hover:bg-rose-600 text-white border-none px-3 py-1 rounded-lg cursor-pointer text-xs font-semibold transition flex items-center gap-1">
-                    <i class="fa-solid fa-file-pdf"></i> PDF
+            <!-- Date Range Filter & Export PDF in one line -->
+            <div class="flex flex-row items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs">
+                <i class="fa-solid fa-calendar text-slate-400"></i>
+                <input type="date" id="filter-from-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
+                <span class="text-slate-400">-</span>
+                <input type="date" id="filter-to-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
+                <button onclick="clearDateFilter()" class="text-slate-400 hover:text-rose-500 ml-1"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="exportToPDF()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ml-2">
+                    <i class="fa-solid fa-file-pdf text-rose-500"></i> PDF
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Hidden Profile elements for PDF data mapping -->
-    <div class="hidden">
-        <img id="profile-avatar" src="" alt="Avatar">
-        <span id="footer-address">अप्लब्ध छैन</span>
-        <span id="footer-phone">अप्लब्ध छैन</span>
-        <span id="footer-email">अप्लब्ध छैन</span>
-    </div>
-
-    <!-- Advanced Summary Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
-            <p class="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider">Total Income</p>
-            <h2 id="summary-income" class="text-lg md:text-xl font-extrabold text-emerald-800 dark:text-emerald-200 mt-1">Rs 0</h2>
+    <!-- Advanced Summary Cards (Balanced Grid) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
+            <p class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider" data-i18n="lbl_total_income">Total Income</p>
+            <h2 id="summary-income" class="text-base md:text-lg font-extrabold text-emerald-800 dark:text-emerald-200 mt-1">Rs 0</h2>
         </div>
-        <div class="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50">
-            <p class="text-[11px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider">Total Cashflow</p>
-            <h2 id="summary-cashflow" class="text-lg md:text-xl font-extrabold text-amber-800 dark:text-amber-200 mt-1">Rs 0</h2>
+        <div class="bg-amber-50 dark:bg-amber-950/40 p-3.5 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+            <p class="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider" data-i18n="lbl_total_cashflow">Total Cashflow</p>
+            <h2 id="summary-cashflow" class="text-base md:text-lg font-extrabold text-amber-800 dark:text-amber-200 mt-1">Rs 0</h2>
         </div>
-        <div class="bg-blue-50 dark:bg-blue-950/40 p-4 rounded-2xl border border-blue-200 dark:border-blue-900/50">
-            <p class="text-[11px] text-blue-700 dark:text-blue-400 font-bold uppercase tracking-wider">Total Expense (खर्च)</p>
-            <h2 id="summary-expense" class="text-lg md:text-xl font-extrabold text-blue-800 dark:text-blue-200 mt-1">Rs 0</h2>
+        <div class="bg-blue-50 dark:bg-blue-950/40 p-3.5 rounded-2xl border border-blue-200 dark:border-blue-900/50">
+            <p class="text-[10px] text-blue-700 dark:text-blue-400 font-bold uppercase tracking-wider" data-i18n="lbl_total_expense">Total Expense</p>
+            <h2 id="summary-expense" class="text-base md:text-lg font-extrabold text-blue-800 dark:text-blue-200 mt-1">Rs 0</h2>
         </div>
-        <div class="bg-rose-50 dark:bg-rose-950/40 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50">
-            <p class="text-[11px] text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider">Receivable (To Take)</p>
-            <h2 id="summary-receivable" class="text-lg md:text-xl font-extrabold text-rose-800 dark:text-rose-200 mt-1">Rs 0</h2>
+        <div class="bg-rose-50 dark:bg-rose-950/40 p-3.5 rounded-2xl border border-rose-200 dark:border-rose-900/50">
+            <p class="text-[10px] text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider" data-i18n="lbl_receivable">Receivable</p>
+            <h2 id="summary-receivable" class="text-base md:text-lg font-extrabold text-rose-800 dark:text-rose-200 mt-1">Rs 0</h2>
         </div>
-        <div class="bg-orange-50 dark:bg-orange-950/40 p-4 rounded-2xl border border-orange-200 dark:border-orange-900/50">
-            <p class="text-[11px] text-orange-700 dark:text-orange-400 font-bold uppercase tracking-wider">Payable (To Give)</p>
-            <h2 id="summary-payable" class="text-lg md:text-xl font-extrabold text-orange-800 dark:text-orange-200 mt-1">Rs 0</h2>
+        <div class="bg-orange-50 dark:bg-orange-950/40 p-3.5 rounded-2xl border border-orange-200 dark:border-orange-900/50 col-span-2 sm:col-span-1">
+            <p class="text-[10px] text-orange-700 dark:text-orange-400 font-bold uppercase tracking-wider" data-i18n="lbl_payable">Payable</p>
+            <h2 id="summary-payable" class="text-base md:text-lg font-extrabold text-orange-800 dark:text-orange-200 mt-1">Rs 0</h2>
         </div>
     </div>
 
     <!-- ACCORDION CARD 1: ADD TRANSACTION -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-transaction')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-right-left text-blue-500"></i> Add New Transaction</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-right-left text-blue-500"></i> <span data-i18n="acc_add_txn">Add New Transaction</span></span>
             <i id="icon-section-transaction" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
         <div id="content-section-transaction" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
@@ -113,58 +104,58 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_date">Date</label>
                         <input type="date" id="txn-date" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Name</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_name">Name</label>
                         <input type="text" id="txn-party" placeholder="Enter name" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Type</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_type">Type</label>
                         <select id="txn-type" onchange="handleTypeChange()" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Receivable">Receivable (To Take)</option>
-                            <option value="Payable">Payable (To Give)</option>
-                            <option value="Expense">Expense (खर्च)</option>
+                            <option value="Receivable" data-i18n="opt_receivable">Receivable (To Take)</option>
+                            <option value="Payable" data-i18n="opt_payable">Payable (To Give)</option>
+                            <option value="Expense" data-i18n="opt_expense">Expense (खर्च)</option>
                         </select>
                     </div>
                     <div id="interest-fields-wrapper" class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Monthly Interest Rate (%)</label>
-                            <input type="number" step="any" id="txn-interest-rate" value="0" oninput="calculateTotalAmount()" placeholder="Monthly Rate (%)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_interest">Monthly Interest Rate (%)</label>
+                            <input type="number" step="any" id="txn-interest-rate" value="0" oninput="calculateTotalAmount()" placeholder="Rate (%)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Period (Months)</label>
-                            <input type="number" step="any" id="txn-period" value="0" oninput="calculateTotalAmount()" placeholder="Time in months" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_period">Period (Months)</label>
+                            <input type="number" step="any" id="txn-period" value="0" oninput="calculateTotalAmount()" placeholder="Months" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Principal Amount (NPR / INR)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_principal">Principal Amount (NPR / INR)</label>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="number" step="any" id="txn-amount-npr" oninput="calculateTotalAmount()" placeholder="NPR (Rs)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                             <input type="number" step="any" id="txn-amount-inr" oninput="calculateTotalAmount()" placeholder="INR (₹)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Total Amount (Converted to NPR)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_total_calc">Total Amount (Converted to NPR)</label>
                         <input type="text" id="txn-total-calc" readonly placeholder="Total calculation" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-xs outline-none font-bold">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Remarks / Note</label>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_remarks">Remarks / Note</label>
                     <input type="text" id="txn-note" placeholder="Optional details..." class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <div class="flex gap-2 pt-2">
-                    <button type="button" id="txn-cancel-btn" onclick="resetTxnForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs">Cancel</button>
-                    <button type="submit" id="txn-submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium p-2.5 rounded-xl text-xs transition">Save Transaction</button>
+                    <button type="button" id="txn-cancel-btn" onclick="resetTxnForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs" data-i18n="btn_cancel">Cancel</button>
+                    <button type="submit" id="txn-submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium p-2.5 rounded-xl text-xs transition" data-i18n="btn_save_txn">Save Transaction</button>
                 </div>
             </form>
         </div>
@@ -173,7 +164,7 @@
     <!-- ACCORDION CARD 2: PARTY ACCOUNTS & LEDGER -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-party')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-users text-purple-500"></i> Party Accounts & Ledger</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-users text-purple-500"></i> <span data-i18n="acc_party_ledger">Party Accounts & Ledger</span></span>
             <i id="icon-section-party" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
         <div id="content-section-party" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
@@ -187,7 +178,7 @@
     <!-- ACCORDION CARD 3: ADD INCOME -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-income')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> Add Income Source</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> <span data-i18n="acc_add_income">Add Income Source</span></span>
             <i id="icon-section-income" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
         <div id="content-section-income" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
@@ -195,41 +186,41 @@
                 <input type="hidden" id="edit-income-index" value="">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Income Source Name</label>
-                        <input type="text" id="income-source-name" placeholder="Income Source Name" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_income_source">Income Source Name</label>
+                        <input type="text" id="income-source-name" placeholder="Source Name" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_date">Date</label>
                         <input type="date" id="income-date" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (NPR / INR)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_amount_npr_inr">Amount (NPR / INR)</label>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="number" step="any" id="income-amount-npr" oninput="calculateIncomeTotal()" placeholder="NPR (Rs)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                             <input type="number" step="any" id="income-amount-inr" oninput="calculateIncomeTotal()" placeholder="INR (₹)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Total Amount (NPR)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_total_npr">Total Amount (NPR)</label>
                         <input type="text" id="income-total-calc" readonly placeholder="Total in NPR" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-xs outline-none font-bold">
                     </div>
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="button" id="income-cancel-btn" onclick="resetIncomeForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs">Cancel</button>
-                    <button type="submit" id="income-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium p-2.5 rounded-xl text-xs transition">Add Income</button>
+                    <button type="button" id="income-cancel-btn" onclick="resetIncomeForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs" data-i18n="btn_cancel">Cancel</button>
+                    <button type="submit" id="income-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium p-2.5 rounded-xl text-xs transition" data-i18n="btn_add_income">Add Income</button>
                 </div>
             </form>
             <div class="flex justify-end pt-2">
-                <button onclick="printIncomePDF()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print PDF</button>
+                <button onclick="printIncomePDF()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print_pdf">Print PDF</span></button>
             </div>
             <div id="income-list-container" class="space-y-2 pt-2"></div>
             <!-- Income Total Table -->
             <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs font-bold mt-2">
-                <span>Total Income (Filtered):</span>
+                <span data-i18n="lbl_total_income_filtered">Total Income (Filtered):</span>
                 <span id="income-table-total" class="text-emerald-500 text-sm">Rs 0</span>
             </div>
         </div>
@@ -238,7 +229,7 @@
     <!-- ACCORDION CARD 4: ADD CASHFLOW / SAVINGS -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
         <button onclick="toggleAccordion('section-savings')" class="w-full flex justify-between items-center p-4 md:p-5 text-left font-bold text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-piggy-bank text-amber-500"></i> Add Cashflow / Savings</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-piggy-bank text-amber-500"></i> <span data-i18n="acc_add_cashflow">Add Cashflow / Savings</span></span>
             <i id="icon-section-savings" class="fa-solid fa-chevron-down transition-transform"></i>
         </button>
         <div id="content-section-savings" class="hidden p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
@@ -246,11 +237,11 @@
                 <input type="hidden" id="edit-savings-index" value="">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Cashflow Title</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_cashflow_title">Cashflow Title</label>
                         <input type="text" id="savings-title" placeholder="Cashflow Title" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Category</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_category">Category</label>
                         <select id="savings-category" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2 rounded-xl text-xs outline-none">
                             <option value="Bank">🏦 Bank</option>
                             <option value="Cash">💵 Cash</option>
@@ -261,34 +252,34 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (NPR / INR)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_amount_npr_inr">Amount (NPR / INR)</label>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="number" step="any" id="savings-amount-npr" oninput="calculateSavingsTotal()" placeholder="NPR (Rs)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                             <input type="number" step="any" id="savings-amount-inr" oninput="calculateSavingsTotal()" placeholder="INR (₹)" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Total Amount (NPR)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_total_npr">Total Amount (NPR)</label>
                         <input type="text" id="savings-total-calc" readonly placeholder="Total in NPR" class="w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-xs outline-none font-bold">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1" data-i18n="lbl_date">Date</label>
                         <input type="date" id="savings-date" required class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                     </div>
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="button" id="savings-cancel-btn" onclick="resetSavingsForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs">Cancel</button>
-                    <button type="submit" id="savings-submit-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium p-2.5 rounded-xl text-xs transition">Add Cashflow</button>
+                    <button type="button" id="savings-cancel-btn" onclick="resetSavingsForm()" class="hidden w-1/3 bg-slate-500 text-white p-2.5 rounded-xl text-xs" data-i18n="btn_cancel">Cancel</button>
+                    <button type="submit" id="savings-submit-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium p-2.5 rounded-xl text-xs transition" data-i18n="btn_add_cashflow">Add Cashflow</button>
                 </div>
             </form>
             <div class="flex justify-end pt-2">
-                <button onclick="printSavingsPDF()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print PDF</button>
+                <button onclick="printSavingsPDF()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print_pdf">Print PDF</span></button>
             </div>
             <div id="savings-list-container" class="space-y-2 pt-2"></div>
             <!-- Savings Total Table -->
             <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs font-bold mt-2">
-                <span>Total Cashflow / Savings (Filtered):</span>
+                <span data-i18n="lbl_total_cashflow_filtered">Total Cashflow / Savings (Filtered):</span>
                 <span id="savings-table-total" class="text-amber-500 text-sm">Rs 0</span>
             </div>
         </div>
@@ -302,137 +293,176 @@
 <div id="ledger-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 p-3">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 w-full max-w-lg shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h3 id="modal-party-title" class="text-sm font-bold text-slate-900 dark:text-white">Party Ledger</h3>
+            <h3 id="modal-party-title" class="text-sm font-bold text-slate-900 dark:text-white" data-i18n="modal_party_ledger">Party Ledger</h3>
             <button onclick="closeLedgerModal()" class="text-slate-400 hover:text-rose-500 text-sm"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="modal-ledger-content" class="space-y-2 text-xs"></div>
         <div class="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-3">
-            <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300">Settle / Payment</h4>
+            <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300" data-i18n="modal_settle_title">Settle / Payment</h4>
             <div class="grid grid-cols-2 gap-2">
                 <input type="number" step="any" id="settle-amount" placeholder="Amount" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
                 <select id="settle-type" class="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none">
-                    <option value="Paid">Payment Given (Paid)</option>
-                    <option value="Received">Payment Received</option>
+                    <option value="Paid" data-i18n="opt_paid">Payment Given (Paid)</option>
+                    <option value="Received" data-i18n="opt_received">Payment Received</option>
                 </select>
             </div>
             <div class="flex gap-2">
-                <button onclick="recordPartialSettle()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-semibold">Save Payment</button>
-                <button onclick="printPartyLedger()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print PDF</button>
+                <button onclick="recordPartialSettle()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-semibold" data-i18n="btn_save_payment">Save Payment</button>
+                <button onclick="printPartyLedger()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print_pdf">Print PDF</span></button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Firebase Configuration & Initialization
+    const firebaseConfig = {
+        databaseURL: "https://digital-notebook-default-rtdb.firebaseio.com/"
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const dbRef = firebase.database().ref('digital_notebook_data');
+
     let transactions = JSON.parse(localStorage.getItem('my_transactions')) || [];
     let incomes = JSON.parse(localStorage.getItem('my_incomes')) || [];
     let savings = JSON.parse(localStorage.getItem('my_cashflow')) || [];
     let activePartyName = null;
+    let currentLang = localStorage.getItem('app_lang') || 'en';
 
+    document.getElementById('language-switcher').value = currentLang;
     document.getElementById('txn-date').valueAsDate = new Date();
     document.getElementById('income-date').valueAsDate = new Date();
     document.getElementById('savings-date').valueAsDate = new Date();
 
+    const translations = {
+        en: {
+            header_title: "Cashflow & Ledger",
+            lbl_total_income: "Total Income",
+            lbl_total_cashflow: "Total Cashflow",
+            lbl_total_expense: "Total Expense",
+            lbl_receivable: "Receivable",
+            lbl_payable: "Payable",
+            acc_add_txn: "Add New Transaction",
+            lbl_date: "Date",
+            lbl_name: "Name",
+            lbl_type: "Type",
+            opt_receivable: "Receivable (To Take)",
+            opt_payable: "Payable (To Give)",
+            opt_expense: "Expense (खर्च)",
+            lbl_interest: "Monthly Interest Rate (%)",
+            lbl_period: "Period (Months)",
+            lbl_principal: "Principal Amount (NPR / INR)",
+            lbl_total_calc: "Total Amount (Converted to NPR)",
+            lbl_remarks: "Remarks / Note",
+            btn_cancel: "Cancel",
+            btn_save_txn: "Save Transaction",
+            acc_party_ledger: "Party Accounts & Ledger",
+            acc_add_income: "Add Income Source",
+            lbl_income_source: "Income Source Name",
+            lbl_amount_npr_inr: "Amount (NPR / INR)",
+            lbl_total_npr: "Total Amount (NPR)",
+            btn_add_income: "Add Income",
+            btn_print_pdf: "Print PDF",
+            lbl_total_income_filtered: "Total Income (Filtered):",
+            acc_add_cashflow: "Add Cashflow / Savings",
+            lbl_cashflow_title: "Cashflow Title",
+            lbl_category: "Category",
+            btn_add_cashflow: "Add Cashflow",
+            lbl_total_cashflow_filtered: "Total Cashflow / Savings (Filtered):",
+            modal_party_ledger: "Party Ledger",
+            modal_settle_title: "Settle / Payment",
+            opt_paid: "Payment Given (Paid)",
+            opt_received: "Payment Received",
+            btn_save_payment: "Save Payment"
+        },
+        ne: {
+            header_title: "क्याशफ्लो र खाता (Ledger)",
+            lbl_total_income: "कुल आम्दानी",
+            lbl_total_cashflow: "कुल क्याशफ्लो",
+            lbl_total_expense: "कुल खर्च",
+            lbl_receivable: "लिन बाँकी",
+            lbl_payable: "दिन बाँकी",
+            acc_add_txn: "नयाँ ट्रान्जेक्सन थप्नुहोस्",
+            lbl_date: "मिति",
+            lbl_name: "नाम",
+            lbl_type: "प्रकार",
+            opt_receivable: "लिन पर्ने (Receivable)",
+            opt_payable: "दिन पर्ने (Payable)",
+            opt_expense: "खर्च (Expense)",
+            lbl_interest: "मासिक ब्याज दर (%)",
+            lbl_period: "अवधि (मिना)",
+            lbl_principal: "मूल रकम (NPR / INR)",
+            lbl_total_calc: "जम्मा रकम (NPR मा)",
+            lbl_remarks: "टिप्पणी / नोट",
+            btn_cancel: "रद्द गर्नुहोस्",
+            btn_save_txn: "ट्रान्जेक्सन सेभ गर्नुहोस्",
+            acc_party_ledger: "पार्टी खाता र लेजर",
+            acc_add_income: "आम्दानी स्रोत थप्नुहोस्",
+            lbl_income_source: "आम्दानी स्रोतको नाम",
+            lbl_amount_npr_inr: "रकम (NPR / INR)",
+            lbl_total_npr: "जम्मा रकम (NPR)",
+            btn_add_income: "आम्दानी थप्नुहोस्",
+            btn_print_pdf: "प्रिन्ट PDF",
+            lbl_total_income_filtered: "कुल आम्दानी (फिल्टर गरिएको):",
+            acc_add_cashflow: "क्याशफ्लो / बचत थप्नुहोस्",
+            lbl_cashflow_title: "क्याशफ्लो शीर्षक",
+            lbl_category: "वर्ग (Category)",
+            btn_add_cashflow: "क्याशफ्लो थप्नुहोस्",
+            lbl_total_cashflow_filtered: "कुल क्याशफ्लो / बचत (फिल्टर गरिएको):",
+            modal_party_ledger: "पार्टी लेजर",
+            modal_settle_title: "भुक्तानी / हिसाब मिलाउने",
+            opt_paid: "भुक्तानी दिएको (Paid)",
+            opt_received: "भुक्तानी प्राप्त भएको",
+            btn_save_payment: "भुक्तानी सेभ गर्नुहोस्"
+        }
+    };
+
+    function switchLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('app_lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) {
+                el.innerText = translations[lang][key];
+            }
+        });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
-        const savedProfile = localStorage.getItem('userProfile');
-        if (savedProfile) {
-            const profile = JSON.parse(savedProfile);
-            
-            if(profile.name) {
-                const orgNameEl = document.getElementById('profile-org-name');
-                if(orgNameEl) orgNameEl.textContent = profile.name;
-            }
-            
-            const addrEl = document.getElementById('footer-address');
-            if(addrEl) addrEl.textContent = profile.address || 'उपलब्ध छैन';
-            
-            const phoneEl = document.getElementById('footer-phone');
-            if(phoneEl) phoneEl.textContent = profile.phone || 'उपलब्ध छैन';
-            
-            const emailEl = document.getElementById('footer-email');
-            if(emailEl) emailEl.textContent = profile.email || 'उपलब्ध छैन';
-            
-            if (profile.photo) {
-                const avatarImg = document.getElementById('profile-avatar');
-                if(avatarImg) {
-                    avatarImg.src = profile.photo;
+        switchLanguage(currentLang);
+        // Silent background sync fetch from Firebase
+        dbRef.once('value').then((snapshot) => {
+            const fbData = snapshot.val();
+            if (fbData) {
+                if (fbData.transactions) {
+                    transactions = fbData.transactions;
+                    localStorage.setItem('my_transactions', JSON.stringify(transactions));
                 }
+                if (fbData.incomes) {
+                    incomes = fbData.incomes;
+                    localStorage.setItem('my_incomes', JSON.stringify(incomes));
+                }
+                if (fbData.savings) {
+                    savings = fbData.savings;
+                    localStorage.setItem('my_cashflow', JSON.stringify(savings));
+                }
+                refreshAll();
             }
-        }
+        }).catch(err => console.log("Firebase sync silent error"));
     });
 
-    document.getElementById('generate-pdf-btn').addEventListener('click', () => {
-        const selectedType = document.getElementById('transaction-type-filter').value;
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
+    function saveData() {
+        localStorage.setItem('my_transactions', JSON.stringify(transactions));
+        localStorage.setItem('my_incomes', JSON.stringify(incomes));
+        localStorage.setItem('my_cashflow', JSON.stringify(savings));
 
-        const allData = JSON.parse(localStorage.getItem('my_transactions')) || [];
-
-        const filteredData = allData.filter(item => {
-            const matchesType = (selectedType === 'all') || (item.type === selectedType);
-            const matchesDate = (!startDate || item.date >= startDate) && (!endDate || item.date <= endDate);
-            return matchesType && matchesDate;
-        });
-
-        generatePDFReport(filteredData, selectedType);
-    });
-
-    function generatePDFReport(data, type) {
-        const printWindow = window.open('', '_blank');
-        
-        let orgName = document.getElementById('profile-org-name')?.textContent || 'Digital Notebook';
-        let address = document.getElementById('footer-address')?.textContent || '-';
-        let phone = document.getElementById('footer-phone')?.textContent || '-';
-        let email = document.getElementById('footer-email')?.textContent || '-';
-        let avatarSrc = document.getElementById('profile-avatar')?.src || '';
-
-        let html = `<html><head><title>Financial Report</title><style>
-            body { font-family: sans-serif; padding: 20px; color: #0f172a; position: relative; }
-            .pdf-page-container { position: relative; width: 100%; background: #fff; padding: 10px; }
-            .pdf-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 28pt; font-weight: bold; color: #94a3b8; opacity: 0.12; z-index: 0; pointer-events: none; text-align: center; width: 100%; white-space: nowrap; }
-            .pdf-header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; position: relative; z-index: 1; min-height: 60px; }
-            .pdf-footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; text-align: center; font-size: 9.5pt; color: #64748b; z-index: 1; position: relative; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; position: relative; z-index: 1; }
-            th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; font-size: 11pt; }
-            th { background: #f1f5f9; }
-        </style></head><body>`;
-
-        html += `<div class="pdf-page-container">`;
-        
-        // Watermark
-        html += `<div class="pdf-watermark">Digital Notebook Kamal GC</div>`;
-
-        // Header with Logo Photo 1 mapping
-        html += `<div class="pdf-header">`;
-        if (avatarSrc && avatarSrc !== window.location.href) {
-            html += `<img src="${avatarSrc}" alt="Avatar" style="position: absolute; left: 10px; top: 0; width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6;">`;
-        }
-        html += `<h1 style="margin: 0; font-size: 20pt; color: #0f172a;">${orgName}</h1>`;
-        html += `<p style="margin: 5px 0 0 0; font-size: 11pt; color: #64748b;">डिजिटल वित्तीय रिपोर्ट (${type})</p>`;
-        html += `</div>`;
-
-        // Table Data
-        html += `<table><tr><th>Date</th><th>Party / Name</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
-        let totalAmount = 0;
-        data.forEach(item => {
-            totalAmount += (item.amount || 0);
-            html += `<tr><td>${item.date}</td><td>${item.party || '-'}</td><td>${item.type}</td><td>${item.note || '-'}</td><td>${item.amount}</td></tr>`;
-        });
-        html += `</table>`;
-        html += `<p style="font-weight: bold; text-align: right; z-index: 1; position: relative;">Total: Rs ${totalAmount.toLocaleString()}</p>`;
-
-        // Footer with Name, Email, Address
-        html += `<div class="pdf-footer">`;
-        html += `<p style="margin: 3px 0;">ठेगाना: ${address} | फोन नम्बर: ${phone}</p>`;
-        html += `<p style="margin: 3px 0;">इमेल: ${email}</p>`;
-        html += `</div>`;
-
-        html += `</div></body></html>`;
-
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.print();
-        showToast("PDF generated successfully!");
+        // Silent Cloud Backup to Firebase (Domain safe, no toast alert)
+        dbRef.set({
+            transactions: transactions,
+            incomes: incomes,
+            savings: savings
+        }).catch(err => console.log("Cloud backup failed silently"));
     }
 
     function showToast(message, type = 'success') {
@@ -552,7 +582,7 @@
         handleTypeChange();
         calculateTotalAmount();
         
-        document.getElementById('txn-submit-btn').innerText = "Update Transaction";
+        document.getElementById('txn-submit-btn').innerText = currentLang === 'ne' ? "ट्रान्जेक्सन अपडेट गर्नुहोस्" : "Update Transaction";
         document.getElementById('txn-cancel-btn').classList.remove('hidden');
         
         const content = document.getElementById('content-section-transaction');
@@ -600,7 +630,7 @@
         document.getElementById('income-amount-inr').value = i.inr || 0;
         document.getElementById('income-date').value = i.date;
         calculateIncomeTotal();
-        document.getElementById('income-submit-btn').innerText = "Update Income";
+        document.getElementById('income-submit-btn').innerText = currentLang === 'ne' ? "आम्दानी अपडेट गर्नुहोस्" : "Update Income";
         document.getElementById('income-cancel-btn').classList.remove('hidden');
     }
 
@@ -609,7 +639,7 @@
         document.getElementById('edit-income-index').value = "";
         document.getElementById('income-date').valueAsDate = new Date();
         document.getElementById('income-total-calc').value = "";
-        document.getElementById('income-submit-btn').innerText = "Add Income";
+        document.getElementById('income-submit-btn').innerText = translations[currentLang].btn_add_income;
         document.getElementById('income-cancel-btn').classList.add('hidden');
     }
 
@@ -654,7 +684,7 @@
         document.getElementById('savings-amount-inr').value = s.inr || 0;
         document.getElementById('savings-date').value = s.date;
         calculateSavingsTotal();
-        document.getElementById('savings-submit-btn').innerText = "Update Cashflow";
+        document.getElementById('savings-submit-btn').innerText = currentLang === 'ne' ? "क्याशफ्लो अपडेट गर्नुहोस्" : "Update Cashflow";
         document.getElementById('savings-cancel-btn').classList.remove('hidden');
     }
 
@@ -663,7 +693,7 @@
         document.getElementById('edit-savings-index').value = "";
         document.getElementById('savings-date').valueAsDate = new Date();
         document.getElementById('savings-total-calc').value = "";
-        document.getElementById('savings-submit-btn').innerText = "Add Cashflow";
+        document.getElementById('savings-submit-btn').innerText = translations[currentLang].btn_add_cashflow;
         document.getElementById('savings-cancel-btn').classList.add('hidden');
     }
 
@@ -676,25 +706,29 @@
         }
     }
 
-    function saveData() {
-        localStorage.setItem('my_transactions', JSON.stringify(transactions));
-        localStorage.setItem('my_incomes', JSON.stringify(incomes));
-        localStorage.setItem('my_cashflow', JSON.stringify(savings));
-    }
-
     function resetTxnForm() {
         document.getElementById('transaction-form').reset();
         document.getElementById('edit-txn-index').value = "";
         document.getElementById('txn-date').valueAsDate = new Date();
         document.getElementById('txn-total-calc').value = "";
-        document.getElementById('txn-submit-btn').innerText = "Save Transaction";
+        document.getElementById('txn-submit-btn').innerText = translations[currentLang].btn_save_txn;
         document.getElementById('txn-cancel-btn').classList.add('hidden');
         handleTypeChange();
     }
 
+    function applyGlobalFilters() {
+        refreshAll();
+    }
+
+    function clearDateFilter() {
+        document.getElementById('filter-from-date').value = '';
+        document.getElementById('filter-to-date').value = '';
+        refreshAll();
+    }
+
     function getDateFilteredData(data) {
-        const fromDate = document.getElementById('start-date').value;
-        const toDate = document.getElementById('end-date').value;
+        const fromDate = document.getElementById('filter-from-date').value;
+        const toDate = document.getElementById('filter-to-date').value;
         return data.filter(item => {
             if (fromDate && item.date < fromDate) return false;
             if (toDate && item.date > toDate) return false;
@@ -948,6 +982,43 @@
             `;
         });
         document.getElementById('savings-table-total').innerText = 'Rs ' + totalSavingsSum.toLocaleString();
+    }
+
+    function exportToPDF() {
+        const printWindow = window.open('', '_blank');
+        const filteredTxns = getDateFilteredData(transactions);
+        const filteredIncomes = getDateFilteredData(incomes);
+        const filteredSavings = getDateFilteredData(savings);
+
+        let html = `<html><head><title>Complete Financial Report</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:20px;}th,td{border:1px solid #ddd;padding:6px;text-align:left;font-size:12px;}th{background:#f4f4f4;}h3{margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px;}</style></head><body>`;
+        html += `<h2>Complete Financial Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
+
+        html += `<h3>Transactions & Expenses</h3>`;
+        html += `<table><tr><th>Date</th><th>Name/Party</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
+        filteredTxns.forEach(t => {
+            html += `<tr><td>${t.date}</td><td>${t.party}</td><td>${t.type}</td><td>${t.note || '-'}</td><td>${t.amount}</td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `<h3>Income Sources</h3>`;
+        html += `<table><tr><th>Date</th><th>Source Name</th><th>Amount (Rs)</th></tr>`;
+        filteredIncomes.forEach(i => {
+            html += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.amount}</td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `<h3>Cashflow & Savings</h3>`;
+        html += `<table><tr><th>Date</th><th>Title</th><th>Category</th><th>Amount (Rs)</th></tr>`;
+        filteredSavings.forEach(s => {
+            html += `<tr><td>${s.date}</td><td>${s.title}</td><td>${s.category}</td><td>${s.amount}</td></tr>`;
+        });
+        html += `</table>`;
+
+        html += `</body></html>`;
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.print();
+        showToast("PDF generated successfully!");
     }
 
     refreshAll();
