@@ -43,27 +43,13 @@ tailwind.config = {
     }
 }
 </script>
-<script>
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'light') {
-        document.documentElement.classList.remove('dark');
-    } else {
-        document.documentElement.classList.add('dark');
-    }
-
-    const savedFontSize = localStorage.getItem('font_size') || 'normal';
-    if (savedFontSize === 'small') {
-        document.documentElement.style.fontSize = '13px';
-    } else if (savedFontSize === 'large') {
-        document.documentElement.style.fontSize = '16px';
-    } else {
-        document.documentElement.style.fontSize = '14px';
-    }
-</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Global Settings & UI Configuration script -->
 <script src="global.js"></script>
+
 <style>
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -98,7 +84,7 @@ tailwind.config = {
 </head>
 <body id="main-body" class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 pb-20 md:pb-6 transition-colors duration-300 w-full m-0 text-xs">
 
-<!-- Enhanced Welcome Splash Screen (Set to 6 Seconds) -->
+<!-- Welcome Splash Screen -->
 <div id="splash-screen" class="fixed inset-0 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 z-50 flex flex-col items-center justify-center text-white transition-opacity duration-700">
     <div class="text-center space-y-4">
         <div class="flex justify-center">
@@ -182,6 +168,15 @@ tailwind.config = {
                 <button onclick="saveUserDetails()" class="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-md transition duration-200">Save Details</button>
             </div>
 
+            <!-- Cloud Sync Trigger Buttons -->
+            <div class="bg-slate-800/50 p-3 rounded-xl shadow-sm space-y-2 border border-slate-700/60">
+                <h3 class="text-[11px] font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-cloud text-indigo-400"></i> Cloud Sync</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="handleCloudBackup()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 px-2 rounded-lg text-[10px] font-medium transition">Backup</button>
+                    <button onclick="handleCloudRestore()" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 px-2 rounded-lg text-[10px] font-medium transition">Restore</button>
+                </div>
+            </div>
+
             <div class="bg-slate-800/50 p-3 rounded-xl shadow-sm space-y-2.5 border border-slate-700/60">
                 <h3 class="text-[11px] font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-indigo-400"></i> Security</h3>
                 <div>
@@ -197,7 +192,6 @@ tailwind.config = {
 
     <div class="flex-1 flex flex-col w-full">
         <!-- ================= HEADER SECTION ================= -->
-        <!-- Header updated with margin/padding adjustments (घुचुप्प भएको छ अलिकति टाढा) and larger title text (अक्षर अलिकति ठूलो) -->
         <header class="sticky top-0 z-40 flex items-center justify-between px-5 py-3 bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-md gap-4">
             <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="text-white text-lg focus:outline-none hover:text-indigo-400 transition">☰</button>
             <div class="text-center mx-auto">
@@ -206,7 +200,6 @@ tailwind.config = {
                 </h1>
             </div>
             <div class="relative flex items-center gap-2">
-                <!-- User name next to avatar emoji -->
                 <span id="header-username-display" class="text-[11px] font-semibold text-slate-200 hidden md:inline-block"></span>
                 <div id="header-avatar-container" class="w-8 h-8 rounded-full bg-indigo-600 border border-indigo-500 flex items-center justify-center overflow-hidden shadow-sm">
                     <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
@@ -220,7 +213,6 @@ tailwind.config = {
             <!-- OVERVIEW (DASHBOARD) - 2 COLUMN GRID LAYOUT -->
             <div id="view-dashboard" class="tab-content space-y-2.5 w-full">
                 
-                <!-- Date & Greeting Header -->
                 <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div>
                         <h2 id="dynamic-greeting" class="text-xs md:text-sm font-bold text-slate-800 dark:text-white"></h2>
@@ -229,28 +221,22 @@ tailwind.config = {
                     <span class="text-indigo-500 text-sm">✨</span>
                 </div>
 
-                <!-- 2-Column Grid Layout for Financial Cards -->
                 <div class="grid grid-cols-2 gap-2">
-                    
-                    <!-- Total Receivable -->
                     <div class="dashboard-card bg-white dark:bg-slate-900 p-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                         <p class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5" data-i18n="lbl_receivable">Receivable</p>
                         <h3 id="lbl-receivable" class="text-sm font-extrabold text-blue-600 dark:text-blue-400">Rs 0</h3>
                     </div>
 
-                    <!-- Total Payable -->
                     <div class="dashboard-card bg-white dark:bg-slate-900 p-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                         <p class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5" data-i18n="lbl_payable">Payable</p>
                         <h3 id="lbl-payable" class="text-sm font-extrabold text-rose-600 dark:text-rose-400">Rs 0</h3>
                     </div>
 
-                    <!-- This Month Expense -->
                     <div class="dashboard-card bg-white dark:bg-slate-900 p-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                         <p class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5" data-i18n="lbl_expense">Month Expense</p>
                         <h3 id="lbl-expense" class="text-sm font-extrabold text-amber-600 dark:text-amber-400">Rs 0</h3>
                     </div>
 
-                    <!-- Total Income -->
                     <div class="dashboard-card bg-white dark:bg-slate-900 p-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                         <div class="flex justify-between items-start">
                             <div>
@@ -262,7 +248,6 @@ tailwind.config = {
                     </div>
                 </div>
 
-                <!-- Savings & Investment Card (Full Width Compact) -->
                 <div class="dashboard-card bg-white dark:bg-slate-900 p-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex justify-between items-center">
                     <div>
                         <p class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5" data-i18n="lbl_savings">Total Savings & Investment</p>
@@ -271,7 +256,6 @@ tailwind.config = {
                     <button onclick="switchTab('cashflow')" class="px-2.5 py-1 bg-purple-50 dark:bg-slate-800 text-purple-600 dark:text-purple-400 text-[10px] font-semibold rounded-lg">Goal ➔</button>
                 </div>
 
-                <!-- Chart Container -->
                 <div class="dashboard-card bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                     <p class="text-[10px] font-bold text-slate-800 dark:text-white mb-2" data-i18n="chart_title">Transaction Status</p>
                     <div class="w-full h-36 flex items-center justify-center">
@@ -289,7 +273,7 @@ tailwind.config = {
     </div>
 </div>
 
-<!-- Mobile Bottom Navigation (Updated tab names: nav_cash changed to Saving, nav_settings changed to Setting) -->
+<!-- Mobile Bottom Navigation -->
 <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex justify-around p-2 z-30 shadow-lg transition-colors duration-300">
     <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center text-indigo-600 dark:text-indigo-400 font-semibold text-[10px] gap-0.5"><span class="text-sm">🏠</span> <span data-i18n="nav_home">Overview</span></button>
     <button onclick="switchTab('transactions')" id="mob-nav-transactions" class="flex flex-col items-center text-slate-500 dark:text-slate-400 font-medium text-[10px] gap-0.5"><span class="text-sm">💳</span> <span data-i18n="nav_txns">Txns</span></button>
@@ -302,8 +286,9 @@ tailwind.config = {
     <span id="toast-message">Notification message</span>
 </div>
 
-<!-- ================= JAVASCRIPT ================= -->
+<!-- ================= FIREBASE & APP CONTROLLER SCRIPT ================= -->
 <script type="module">
+    import { backupToCloud, restoreFromCloud } from './firebase-sync.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -319,6 +304,21 @@ tailwind.config = {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const userId = "default_user";
+
+    // Cloud Backup Integration
+    window.handleCloudBackup = async function() {
+        const res = await backupToCloud(userId);
+        showToast(res.message);
+    };
+
+    // Cloud Restore Integration
+    window.handleCloudRestore = async function() {
+        const res = await restoreFromCloud(userId);
+        showToast(res.message);
+        if(res.success) {
+            setTimeout(() => location.reload(), 1000);
+        }
+    };
 
     window.saveUserDetails = async function() {
         const name = document.getElementById('input-full-name').value;
@@ -391,6 +391,9 @@ tailwind.config = {
     document.addEventListener("DOMContentLoaded", () => {
         updateDynamicHeader();
         window.loadStoredUserData();
+        if(window.SettingsManager) {
+            window.SettingsManager.applyToDocument();
+        }
     });
 </script>
 
@@ -451,10 +454,9 @@ tailwind.config = {
     }
 
     function applySettings() {
-        const theme = localStorage.getItem('theme') || 'dark';
-        if (theme === 'light') { document.documentElement.classList.remove('dark'); } 
-        else { document.documentElement.classList.add('dark'); }
-
+        if(window.SettingsManager) {
+            window.SettingsManager.applyToDocument();
+        }
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             el.innerText = t(key);
@@ -488,39 +490,40 @@ tailwind.config = {
         return { receivable, income, savings: totalSavings, expense, payable };
     }
 
-    const initialData = loadDashboardData();
-    const ctx = document.getElementById('dashboardChart').getContext('2d');
-    const dashboardChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Income', 'Receivable', 'Savings', 'Payable', 'Expense'],
-            datasets: [{
-                data: [initialData.income, initialData.receivable, initialData.savings, initialData.payable, initialData.expense],
-                backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f43f5e', '#f59e0b'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        boxWidth: 8,
-                        font: { family: 'Poppins', size: 9 },
-                        color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#334155'
-                    }
-                }
-            }
-        }
-    });
-
+    let dashboardChart = null;
     document.addEventListener("DOMContentLoaded", () => {
         applySettings();
         if (localStorage.getItem('app_pin')) {
             document.getElementById('pin-modal').style.display = 'flex';
         }
+
+        const initialData = loadDashboardData();
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+        dashboardChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Income', 'Receivable', 'Savings', 'Payable', 'Expense'],
+                datasets: [{
+                    data: [initialData.income, initialData.receivable, initialData.savings, initialData.payable, initialData.expense],
+                    backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f43f5e', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 8,
+                            font: { family: 'Poppins', size: 9 },
+                            color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#334155'
+                        }
+                    }
+                }
+            }
+        });
     });
 
     function verifyLoginPin() {
@@ -532,14 +535,11 @@ tailwind.config = {
         }
     }
 
-    // Dynamic Header with seconds included, live temperature, and weather emoji
     function updateDynamicHeader() {
         const now = new Date();
         const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        // Time with seconds included
         const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-        // Simulating live weather/temperature logic based on current hour/month
         const temp = "28°C"; 
         const weatherEmoji = "⛅";
 
@@ -597,8 +597,10 @@ tailwind.config = {
             otherView.classList.add('hidden');
             frame.src = ''; 
             const updatedData = loadDashboardData();
-            dashboardChart.data.datasets[0].data = [updatedData.income, updatedData.receivable, updatedData.savings, updatedData.payable, updatedData.expense];
-            dashboardChart.update();
+            if(dashboardChart) {
+                dashboardChart.data.datasets[0].data = [updatedData.income, updatedData.receivable, updatedData.savings, updatedData.payable, updatedData.expense];
+                dashboardChart.update();
+            }
         } else {
             dashView.classList.add('hidden');
             otherView.classList.remove('hidden');
@@ -612,7 +614,6 @@ tailwind.config = {
         }
     }
 
-    // Welcome splash screen duration extended to 5 seconds (5000ms)
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
