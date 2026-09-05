@@ -38,26 +38,43 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-2 md:p-6 pb-28 transition-colors duration-300 w-full m-0 min-h-screen flex flex-col justify-between">
 
 <div class="space-y-4 w-full flex-1 max-w-5xl mx-auto">
-    <!-- Header Section -->
+    <!-- Header Section with Corrected Global PDF Filter -->
     <div class="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 gap-4">
         <h1 class="text-base md:text-xl font-bold tracking-wider text-slate-900 dark:text-white flex items-center gap-2.5">
             <span class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-emerald-500">📊</span> 
-            <span>Cashflow & Ledger</span>
+            <span id="profile-org-name">Cashflow & Ledger</span>
         </h1>
         
         <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-            <!-- Date Range Filter & Export PDF in one line -->
-            <div class="flex flex-row items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs">
-                <i class="fa-solid fa-calendar text-slate-400"></i>
-                <input type="date" id="filter-from-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
-                <span class="text-slate-400">-</span>
-                <input type="date" id="filter-to-date" onchange="applyGlobalFilters()" class="bg-transparent text-slate-900 dark:text-white outline-none">
-                <button onclick="clearDateFilter()" class="text-slate-400 hover:text-rose-500 ml-1"><i class="fa-solid fa-xmark"></i></button>
-                <button type="button" onclick="exportToPDF()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ml-2">
-                    <i class="fa-solid fa-file-pdf text-rose-500"></i> PDF
+            <!-- Global PDF & Date Filter Container -->
+            <div class="pdf-filter-container bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 flex-wrap">
+                <span class="text-[11px] font-semibold text-slate-400">Filter:</span>
+                <input type="date" id="start-date" class="date-input border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-xs outline-none"> 
+                <span class="text-slate-400">से</span> 
+                <input type="date" id="end-date" class="date-input border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-xs outline-none">
+
+                <select id="transaction-type-filter" class="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-xs outline-none">
+                    <option value="all">सबै (All)</option>
+                    <option value="Receivable">लिने (Receivable)</option>
+                    <option value="Expense">खर्च (Expense)</option>
+                    <option value="Payable">दिने (Payable)</option>
+                    <option value="Savings">बचत (Savings)</option>
+                    <option value="Income">Income</option>
+                </select>
+
+                <button type="button" id="generate-pdf-btn" class="bg-rose-500 hover:bg-rose-600 text-white border-none px-3 py-1 rounded-lg cursor-pointer text-xs font-semibold transition flex items-center gap-1">
+                    <i class="fa-solid fa-file-pdf"></i> PDF
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Hidden Profile elements for PDF data mapping -->
+    <div class="hidden">
+        <img id="profile-avatar" src="" alt="Avatar">
+        <span id="footer-address">अप्लब्ध छैन</span>
+        <span id="footer-phone">अप्लब्ध छैन</span>
+        <span id="footer-email">अप्लब्ध छैन</span>
     </div>
 
     <!-- Advanced Summary Cards -->
@@ -143,27 +160,6 @@
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">Remarks / Note</label>
                     <input type="text" id="txn-note" placeholder="Optional details..." class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 py-2 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <!-- PDF Filter & Generation Container Integrated -->
-                <div class="pdf-filter-container bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 flex-wrap">
-                    <span class="text-[11px] font-semibold text-slate-400">PDF Filter:</span>
-                    <input type="date" id="start-date" class="date-input border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1.5 rounded-lg text-xs outline-none"> 
-                    <span class="text-slate-400">से</span> 
-                    <input type="date" id="end-date" class="date-input border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2 py-1.5 rounded-lg text-xs outline-none">
-
-                    <select id="transaction-type-filter" class="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-lg text-xs outline-none">
-                        <option value="all">सबै</option>
-                        <option value="Receivable">लिने</option>
-                        <option value="Expense">खर्च</option>
-                        <option value="Payable">दिने</option>
-                        <option value="Savings">बचत</option>
-                        <option value="Income">Income</option>
-                    </select>
-
-                    <button type="button" id="generate-pdf-btn" class="bg-rose-500 hover:bg-rose-600 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-semibold transition ml-auto flex items-center gap-1">
-                        <i class="fa-solid fa-file-pdf"></i> PDF
-                    </button>
                 </div>
 
                 <div class="flex gap-2 pt-2">
@@ -337,7 +333,6 @@
     document.getElementById('income-date').valueAsDate = new Date();
     document.getElementById('savings-date').valueAsDate = new Date();
 
-    // Profile Data Hydration on Window Load
     window.addEventListener('DOMContentLoaded', () => {
         const savedProfile = localStorage.getItem('userProfile');
         if (savedProfile) {
@@ -361,13 +356,6 @@
                 const avatarImg = document.getElementById('profile-avatar');
                 if(avatarImg) {
                     avatarImg.src = profile.photo;
-                    avatarImg.style.display = 'block';
-                }
-
-                const rootLogo = document.getElementById('profile-root-logo');
-                if(rootLogo) {
-                    rootLogo.src = profile.photo;
-                    rootLogo.style.display = 'inline-block';
                 }
             }
         }
@@ -402,7 +390,7 @@
             body { font-family: sans-serif; padding: 20px; color: #0f172a; position: relative; }
             .pdf-page-container { position: relative; width: 100%; background: #fff; padding: 10px; }
             .pdf-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 28pt; font-weight: bold; color: #94a3b8; opacity: 0.12; z-index: 0; pointer-events: none; text-align: center; width: 100%; white-space: nowrap; }
-            .pdf-header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; position: relative; z-index: 1; }
+            .pdf-header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; position: relative; z-index: 1; min-height: 60px; }
             .pdf-footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; text-align: center; font-size: 9.5pt; color: #64748b; z-index: 1; position: relative; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; position: relative; z-index: 1; }
             th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; font-size: 11pt; }
@@ -414,16 +402,16 @@
         // Watermark
         html += `<div class="pdf-watermark">Digital Notebook Kamal GC</div>`;
 
-        // Header
+        // Header with Logo Photo 1 mapping
         html += `<div class="pdf-header">`;
-        if (avatarSrc) {
+        if (avatarSrc && avatarSrc !== window.location.href) {
             html += `<img src="${avatarSrc}" alt="Avatar" style="position: absolute; left: 10px; top: 0; width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6;">`;
         }
         html += `<h1 style="margin: 0; font-size: 20pt; color: #0f172a;">${orgName}</h1>`;
         html += `<p style="margin: 5px 0 0 0; font-size: 11pt; color: #64748b;">डिजिटल वित्तीय रिपोर्ट (${type})</p>`;
         html += `</div>`;
 
-        // Table
+        // Table Data
         html += `<table><tr><th>Date</th><th>Party / Name</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
         let totalAmount = 0;
         data.forEach(item => {
@@ -433,7 +421,7 @@
         html += `</table>`;
         html += `<p style="font-weight: bold; text-align: right; z-index: 1; position: relative;">Total: Rs ${totalAmount.toLocaleString()}</p>`;
 
-        // Footer
+        // Footer with Name, Email, Address
         html += `<div class="pdf-footer">`;
         html += `<p style="margin: 3px 0;">ठेगाना: ${address} | फोन नम्बर: ${phone}</p>`;
         html += `<p style="margin: 3px 0;">इमेल: ${email}</p>`;
@@ -704,19 +692,9 @@
         handleTypeChange();
     }
 
-    function applyGlobalFilters() {
-        refreshAll();
-    }
-
-    function clearDateFilter() {
-        document.getElementById('filter-from-date').value = '';
-        document.getElementById('filter-to-date').value = '';
-        refreshAll();
-    }
-
     function getDateFilteredData(data) {
-        const fromDate = document.getElementById('filter-from-date').value;
-        const toDate = document.getElementById('filter-to-date').value;
+        const fromDate = document.getElementById('start-date').value;
+        const toDate = document.getElementById('end-date').value;
         return data.filter(item => {
             if (fromDate && item.date < fromDate) return false;
             if (toDate && item.date > toDate) return false;
@@ -956,7 +934,7 @@
         const dateFiltered = getDateFilteredData(filtered);
 
         let totalSavingsSum = 0;
-        dateFiltered.export = dateFiltered.forEach(s => {
+        dateFiltered.forEach(s => {
             totalSavingsSum += s.amount;
             container.innerHTML += `
                 <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs">
@@ -970,43 +948,6 @@
             `;
         });
         document.getElementById('savings-table-total').innerText = 'Rs ' + totalSavingsSum.toLocaleString();
-    }
-
-    function exportToPDF() {
-        const printWindow = window.open('', '_blank');
-        const filteredTxns = getDateFilteredData(transactions);
-        const filteredIncomes = getDateFilteredData(incomes);
-        const filteredSavings = getDateFilteredData(savings);
-
-        let html = `<html><head><title>Complete Financial Report</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:20px;}th,td{border:1px solid #ddd;padding:6px;text-align:left;font-size:12px;}th{background:#f4f4f4;}h3{margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px;}</style></head><body>`;
-        html += `<h2>Complete Financial Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p>`;
-
-        html += `<h3>Transactions & Expenses</h3>`;
-        html += `<table><tr><th>Date</th><th>Name/Party</th><th>Type</th><th>Note</th><th>Amount (Rs)</th></tr>`;
-        filteredTxns.forEach(t => {
-            html += `<tr><td>${t.date}</td><td>${t.party}</td><td>${t.type}</td><td>${t.note || '-'}</td><td>${t.amount}</td></tr>`;
-        });
-        html += `</table>`;
-
-        html += `<h3>Income Sources</h3>`;
-        html += `<table><tr><th>Date</th><th>Source Name</th><th>Amount (Rs)</th></tr>`;
-        filteredIncomes.forEach(i => {
-            html += `<tr><td>${i.date}</td><td>${i.name}</td><td>${i.amount}</td></tr>`;
-        });
-        html += `</table>`;
-
-        html += `<h3>Cashflow & Savings</h3>`;
-        html += `<table><tr><th>Date</th><th>Title</th><th>Category</th><th>Amount (Rs)</th></tr>`;
-        filteredSavings.forEach(s => {
-            html += `<tr><td>${s.date}</td><td>${s.title}</td><td>${s.category}</td><td>${s.amount}</td></tr>`;
-        });
-        html += `</table>`;
-
-        html += `</body></html>`;
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.print();
-        showToast("PDF generated successfully!");
     }
 
     refreshAll();
